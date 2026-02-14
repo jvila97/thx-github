@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos - SanchezCabron OS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="games-body">
+    <header class="header">
+        <div class="container">
+            <div class="logo">Games Tracker</div>
+            <nav class="nav">
+                <a href="index.html">Inicio</a>
+                <a href="series.html">Series</a>
+                <a href="juegos.html" class="active">Juegos</a>
+                <a href="logros.html">Logros</a>
+                <a href="marcadores.html">Links</a>
+                <a href="perfil.html">Perfil</a>
+                <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section">
+        <div class="games-toolbar">
+            <div class="filter-buttons">
+                <button class="btn btn-secondary filter-btn active" data-filter="all">Todos</button>
+                <button class="btn btn-secondary filter-btn" data-filter="completed">Completados</button>
+                <button class="btn btn-secondary filter-btn" data-filter="top-rated">Mejor Puntuación</button>
+            </div>
+            <button class="btn" id="addGameBtn"><i class="fa-solid fa-plus"></i> Añadir Nuevo Juego</button>
+        </div>
+
+        <div id="gamesGrid" class="games-grid">
+            <!-- Las tarjetas de juego se insertarán aquí con JS -->
+        </div>
+    </main>
+
+    <!-- Modal para Añadir/Editar Juego -->
+    <div id="formModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content form-container">
+            <button id="closeModalBtn" class="close-modal-btn">&times;</button>
+            <h2 id="modalTitle">Añadir Nuevo Juego</h2>
+            <form id="gameForm">
+                <div class="form-group">
+                    <label>Nombre del Juego</label>
+                    <input type="text" id="nameInput" name="nameInput" class="terminal-input modal-form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del archivo de Portada (en img/juegos/)</label>
+                    <input type="text" id="coverInput" name="coverInput" class="terminal-input modal-form-input" placeholder="Ej: eldenring.jpg">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Puntuación Metacritic (0-100)</label>
+                        <div class="metacritic-input-wrapper">
+                            <input type="number" id="metacriticInput" name="metacriticInput" class="terminal-input modal-form-input" min="0" max="100">
+                            <div id="metacriticColorIndicator" class="metacritic-color-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Año de Lanzamiento</label>
+                        <input type="number" id="yearInput" name="yearInput" class="terminal-input modal-form-input" placeholder="Ej: 2023">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tiempo Estimado (HLTB)</label>
+                    <input type="text" id="timeInput" name="timeInput" class="terminal-input modal-form-input" placeholder="Ej: 15h, 40h para 100%">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="statusInput" name="statusInput" class="terminal-input modal-form-input">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Jugando">Jugando</option>
+                            <option value="Completado">Completado</option>
+                            <option value="Abandonado">Abandonado</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="progressGroup" style="display: none;">
+                        <label>Progreso (%)</label>
+                        <input type="number" id="progressInput" name="progressInput" class="terminal-input modal-form-input" min="0" max="100" value="0">
+                    </div>
+                </div>
+                <button type="submit" id="btnGuardarJuego" class="btn">Guardar Juego</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Drawer para Detalles del Juego -->
+    <div id="detailsDrawer" class="drawer">
+        <div class="drawer-header">
+            <h2 id="drawerTitle"></h2>
+            <button id="closeDrawerBtn" class="close-modal-btn" style="position: static;">&times;</button>
+        </div>
+        <div class="drawer-content">
+            <img id="drawerCover" src="" alt="Portada del juego">
+            <div class="drawer-info-item">
+                <strong>Estado</strong>
+                <span id="drawerStatus"></span>
+            </div>
+            <div class="drawer-info-item" id="drawerProgress" style="display: none;">
+                <strong>Progreso</strong>
+                <span id="drawerProgressPercent"></span>
+            </div>
+            <div class="drawer-info-item">
+                <strong>Metacritic</strong>
+                <span id="drawerMetacritic"></span>
+            </div>
+            <div class="drawer-info-item">
+                <strong>Tiempo Estimado</strong>
+                <span id="drawerTime"></span>
+            </div>
+            <div class="drawer-info-item">
+                <strong>Lanzamiento</strong>
+                <span id="drawerYear"></span>
+            </div>
+        </div>
+        <div class="drawer-actions">
+            <button id="drawerEditBtn" class="action-btn edit-btn" title="Editar"><i class="fa-solid fa-pencil"></i></button>
+            <button id="drawerDeleteBtn" class="action-btn delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    </div>
+
+    <script src="logros.js"></script>
+    <script src="juegos.js"></script>
+</body>
+</html>

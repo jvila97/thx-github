@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIVATE VAULT</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        body {
+            background-color: #0f172a;
+            color: #f3f4f6;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .vault-container {
+            text-align: center;
+            width: 320px;
+        }
+        .display {
+            font-size: 2rem;
+            letter-spacing: 0.5rem;
+            margin-bottom: 2rem;
+            height: 3rem;
+            color: #06b6d4;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            justify-items: center;
+        }
+        .key {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .key:hover {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: #06b6d4;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+            transform: scale(1.1);
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .hint {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+    <div class="vault-container" id="vault">
+        <div class="display" id="display"></div>
+        <div class="hint">Pista: La contraseña es el año de nacimiento de los personajes favoritos de Jan</div>
+        <div class="keypad">
+            <div class="key" onclick="press(1)">1</div>
+            <div class="key" onclick="press(2)">2</div>
+            <div class="key" onclick="press(3)">3</div>
+            <div class="key" onclick="press(4)">4</div>
+            <div class="key" onclick="press(5)">5</div>
+            <div class="key" onclick="press(6)">6</div>
+            <div class="key" onclick="press(7)">7</div>
+            <div class="key" onclick="press(8)">8</div>
+            <div class="key" onclick="press(9)">9</div>
+            <div class="key" style="opacity:0; cursor:default;"></div>
+            <div class="key" onclick="press(0)">0</div>
+            <div class="key" onclick="clearCode()"><i class="fa-solid fa-delete-left"></i></div>
+        </div>
+    </div>
+    <script>
+        let code = "";
+        const TARGET = "1998";
+        const display = document.getElementById('display');
+        const vault = document.getElementById('vault');
+
+        function press(num) {
+            if (code.length < 4) {
+                code += num;
+                updateDisplay();
+                if (code.length === 4) checkCode();
+            }
+        }
+
+        function updateDisplay() {
+            display.innerText = "•".repeat(code.length);
+        }
+
+        function clearCode() {
+            code = "";
+            updateDisplay();
+        }
+
+        function checkCode() {
+            if (code === TARGET) {
+                sessionStorage.setItem('vault_access', 'true'); // Crear llave de sesión
+                display.classList.add('success');
+                display.style.fontSize = "1.2rem";
+                display.style.letterSpacing = "2px";
+                display.innerText = "CÓDIGO ACEPTADO";
+                // Efecto Fade-out
+                document.body.style.transition = "opacity 0.8s ease";
+                document.body.style.opacity = "0";
+                setTimeout(() => window.location.href = 'secreto.html', 800);
+            } else {
+                setTimeout(() => {
+                    vault.classList.add('shake');
+                    setTimeout(() => {
+                        vault.classList.remove('shake');
+                        clearCode();
+                    }, 500);
+                }, 200);
+            }
+        }
+
+        // Tracker de Fallos para Logro
+        let fails = 0;
+        function trackFail() {
+            fails++;
+            if(fails >= 3 && typeof desbloquearLogro === 'function') desbloquearLogro('vault_fail_3');
+        }
+    </script>
+    <script src="logros.js"></script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - 2 v 2 Remastered</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --spotify-green: #1DB954;
+            --spotify-black: #000000;
+            --spotify-dark: #121212;
+            --spotify-light: #282828;
+            --spotify-grey: #B3B3B3;
+            --spotify-white: #FFFFFF;
+            --hover-bg: rgba(255, 255, 255, 0.1);
+            --gradient-start: #483D48; /* Tono púrpura/grisáceo oscuro */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--spotify-black);
+            color: var(--spotify-white);
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-areas: "sidebar main" "player player";
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 1fr 90px;
+            user-select: none;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            grid-area: sidebar;
+            background-color: var(--spotify-black);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #fff; }
+        .nav-item { color: var(--spotify-grey); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: 0.3s; padding: 5px 0; }
+        .nav-item:hover, .nav-item.active { color: var(--spotify-white); }
+        .nav-item i { font-size: 1.5rem; width: 24px; text-align: center; }
+
+        /* --- Main Content --- */
+        .main-view {
+            grid-area: main;
+            background: linear-gradient(180deg, var(--gradient-start) 0%, var(--spotify-dark) 400px);
+            overflow-y: auto;
+            position: relative;
+        }
+        .main-view::-webkit-scrollbar { width: 12px; }
+        .main-view::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.3); }
+        .main-view::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.5); }
+
+        /* Sticky Header */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 16px 32px;
+            background: transparent;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 64px;
+        }
+        .sticky-header.scrolled {
+            background-color: #070707;
+            border-bottom: 1px solid #282828;
+        }
+
+        /* Playlist Header Info */
+        .playlist-header {
+            display: flex;
+            align-items: flex-end;
+            gap: 24px;
+            padding: 20px 32px 24px;
+        }
+        .cover-img {
+            width: 232px;
+            height: 232px;
+            box-shadow: 0 4px 60px rgba(0,0,0,0.5);
+            object-fit: cover;
+        }
+        .playlist-info h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .playlist-info h1 {
+            font-size: 5rem; /* Gigante como pedido */
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+        .playlist-meta {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .play-btn-large {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--spotify-green);
+            color: var(--spotify-black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.1s;
+        }
+        .play-btn-large:hover { transform: scale(1.05); background-color: #1ed760; }
+
+        /* --- Songs Table --- */
+        .table-container { padding: 0 32px; margin-bottom: 40px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; color: var(--spotify-grey); }
+        th { 
+            text-align: left; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding: 8px 16px; 
+            font-weight: 400; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        td { padding: 10px 16px; border-radius: 4px; vertical-align: middle; }
+        .song-row { transition: background-color 0.2s; cursor: pointer; }
+        .song-row:hover { background-color: var(--hover-bg); }
+        
+        /* Active State */
+        .song-row.active .song-title { color: var(--spotify-green); }
+        .song-row.active .song-index { display: none; }
+        .song-row.active .equalizer-gif { display: block; }
+
+        .index-col { width: 40px; text-align: center; position: relative; }
+        .song-index { font-size: 1rem; }
+        .play-icon-small { display: none; color: #fff; font-size: 0.9rem; }
+        
+        /* Hover on Row Logic for Index */
+        .song-row:hover .song-index { display: none; }
+        .song-row:hover .play-icon-small { display: block; }
+        .song-row.active:hover .play-icon-small { display: block; }
+        .song-row.active:hover .equalizer-gif { display: none; }
+
+        .song-title { color: var(--spotify-white); font-size: 1rem; font-weight: 500; }
+        .song-artist { font-size: 0.85rem; color: var(--spotify-grey); }
+        .song-artist:hover { color: #fff; text-decoration: underline; }
+
+        /* Equalizer Animation (CSS) */
+        .equalizer-gif {
+            display: none;
+            width: 14px;
+            height: 14px;
+            margin: 0 auto;
+        }
+        .bar {
+            display: inline-block;
+            width: 3px;
+            background-color: var(--spotify-green);
+            animation: bounce 1s infinite;
+        }
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+
+        /* --- Player Bar --- */
+        .player-bar { 
+            grid-area: player; 
+            background-color: #181818; 
+            border-top: 1px solid #282828; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 16px; 
+            z-index: 100;
+        }
+        
+        /* Left: Info */
+        .now-playing { display: flex; align-items: center; width: 30%; gap: 14px; }
+        .now-playing img { width: 56px; height: 56px; object-fit: cover; border-radius: 4px; }
+        .track-info { display: flex; flex-direction: column; justify-content: center; }
+        .track-info .track-name { color: #fff; font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+        .track-info .track-artist { font-size: 0.7rem; color: var(--spotify-grey); }
+        .like-icon { color: var(--spotify-green); margin-left: 15px; cursor: pointer; }
+
+        /* Center: Controls */
+        .player-controls { display: flex; flex-direction: column; align-items: center; width: 40%; }
+        .buttons { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
+        .btn-control { background: none; border: none; color: var(--spotify-grey); font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .btn-control:hover { color: var(--spotify-white); }
+        .btn-control.active { color: var(--spotify-green); }
+        .btn-play { 
+            background: var(--spotify-white); 
+            color: var(--spotify-black); 
+            width: 32px; height: 32px; 
+            border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 1rem; 
+            transition: transform 0.1s; 
+        }
+        .btn-play:hover { transform: scale(1.05); }
+
+        .playback-bar { display: flex; align-items: center; gap: 8px; width: 100%; font-size: 0.7rem; color: var(--spotify-grey); }
+        .progress-bg { flex: 1; height: 4px; background: #535353; border-radius: 2px; cursor: pointer; position: relative; }
+        .progress-fill { width: 0%; height: 100%; background: var(--spotify-white); border-radius: 2px; }
+        .progress-bg:hover .progress-fill { background: var(--spotify-green); }
+
+        /* Right: Volume */
+        .volume-controls { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+        .vol-slider { width: 100px; height: 4px; background: #535353; border-radius: 2px; cursor: pointer; }
+        .vol-fill { width: 100%; height: 100%; background: var(--spotify-white); border-radius: 2px; }
+        .vol-slider:hover .vol-fill { background: var(--spotify-green); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><i class="fa-brands fa-spotify" style="font-size: 2.5rem;"></i> Spotify</div>
+        <div class="nav-item active" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i> Inicio</div>
+        <div class="nav-item"><i class="fa-solid fa-magnifying-glass"></i> Buscar</div>
+        <div class="nav-item"><i class="fa-solid fa-book"></i> Tu Biblioteca</div>
+        <br>
+        <div class="nav-item"><i class="fa-solid fa-plus-square"></i> Crear playlist</div>
+        <div class="nav-item"><i class="fa-solid fa-heart"></i> Tus 'Me gusta'</div>
+    </div>
+
+    <div class="main-view" id="mainView">
+        <div class="sticky-header" id="stickyHeader">
+            <div style="display:flex; gap:16px;">
+                <div style="background:rgba(0,0,0,0.7); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-chevron-left"></i></div>
+                <div style="background:rgba(0,0,0,0.7); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div style="background-color: rgba(0,0,0,0.7); padding: 2px; padding-right: 12px; border-radius: 23px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                <img src="img/fotos_ana/foto1.jpg" onerror="this.src='https://via.placeholder.com/28'" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
+                <span>Miki Nakano</span>
+                <i class="fa-solid fa-caret-down"></i>
+            </div>
+        </div>
+
+        <div class="playlist-header">
+            <img src="img/fotos_ana/foto1.jpg" onerror="this.src='https://via.placeholder.com/230'" class="cover-img">
+            <div class="playlist-info">
+                <h4>Playlist Pública</h4>
+                <h1>2 v 2 Remastered</h1>
+                <div class="playlist-meta">
+                    <img src="img/fotos_ana/foto1.jpg" style="width:24px; height:24px; border-radius:50%; object-fit:cover;" alt="">
+                    <b>Miki Nakano</b> • 11 canciones
+                </div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="play-btn-large" onclick="togglePlay()">
+                <i class="fa-solid fa-play" id="mainPlayIcon"></i>
+            </div>
+            <i class="fa-regular fa-heart" style="font-size: 2rem; color: var(--spotify-grey); cursor:pointer;"></i>
+            <i class="fa-solid fa-ellipsis" style="font-size: 1.5rem; color: var(--spotify-grey); cursor:pointer;"></i>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px; text-align: center;">#</th>
+                        <th>Título</th>
+                        <th>Álbum</th>
+                        <th style="text-align: right;"><i class="fa-regular fa-clock"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="songList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="player-bar">
+        <div class="now-playing">
+            <img src="img/fotos_ana/foto1.jpg" id="currentCover">
+            <div class="track-info">
+                <div class="track-name" id="currentTitle">Selecciona una canción</div>
+                <div class="track-artist" id="currentArtist">...</div>
+            </div>
+            <i class="fa-regular fa-heart like-icon"></i>
+        </div>
+
+        <div class="player-controls">
+            <div class="buttons">
+                <button class="btn-control" id="shuffleBtn" onclick="toggleShuffle()" title="Aleatorio"><i class="fa-solid fa-shuffle"></i></button>
+                <button class="btn-control" onclick="prevSong()" title="Anterior"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="btn-play" onclick="togglePlay()"><i class="fa-solid fa-play" id="barPlayIcon"></i></button>
+                <button class="btn-control" onclick="nextSong()" title="Siguiente"><i class="fa-solid fa-forward-step"></i></button>
+                <button class="btn-control" id="repeatBtn" onclick="toggleRepeat()" title="Repetir"><i class="fa-solid fa-repeat"></i></button>
+            </div>
+            <div class="playback-bar">
+                <span id="currTime">0:00</span>
+                <div class="progress-bg" id="progBar" onclick="seek(event)">
+                    <div class="progress-fill" id="progFill"></div>
+                </div>
+                <span id="durTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="volume-controls">
+            <i class="fa-solid fa-microphone" style="color:var(--spotify-grey); font-size:0.9rem; margin-right:10px;"></i>
+            <i class="fa-solid fa-list" style="color:var(--spotify-grey); font-size:0.9rem; margin-right:10px;"></i>
+            <i class="fa-solid fa-volume-high" style="color:var(--spotify-grey); font-size:1rem; cursor:pointer;" id="volIcon" onclick="toggleMute()"></i>
+            <div class="vol-slider" id="volBar" onclick="setVolume(event)"><div class="vol-fill" id="volFill"></div></div>
+        </div>
+    </div>
+
+    <audio id="audio"></audio>
+
+    <script>
+        // --- DATA & CONFIG ---
+        const songs = [
+            { file: 'Bad Voy_spotdown.org.mp3', title: 'Bad Voy', artist: 'Bad Bunny', album: '2 v 2 Remastered', duration: '3:05' },
+            { file: 'Disney flus_spotdown.org.mp3', title: 'Disney flus', artist: 'Beny Jr', album: '2 v 2 Remastered', duration: '2:45' },
+            { file: 'Formidable_spotdown.org.mp3', title: 'Formidable', artist: 'Stromae', album: 'Racine Carrée', duration: '3:33' },
+            { file: 'Grecocabra_spotdown.org.mp3', title: 'Grecocabra', artist: 'Beny Jr', album: '2 v 2 Remastered', duration: '3:12' },
+            { file: 'Hiccup_spotdown.org.mp3', title: 'Hiccup', artist: 'Bruna', album: 'Single', duration: '2:50' },
+            { file: 'Kan Saito_spotdown.org.mp3', title: 'Kan Saito', artist: 'Morad', album: 'M.D.L.R', duration: '3:40' },
+            { file: 'Magordito_spotdown.org.mp3', title: 'Magordito', artist: 'Maikel Delacalle', album: 'Calle y Fe', duration: '3:15' },
+            { file: 'Pornstar_spotdown.org.mp3', title: 'Pornstar', artist: 'Khea', album: 'Trapicheo', duration: '3:20' },
+            { file: 'Que culpa tiene el lunes de no ser un sabado_spotdown.org.mp3', title: 'Que culpa tiene el lunes', artist: 'Rels B', album: 'Happy Birthday Flakko', duration: '2:55' },
+            { file: 'UltraBakano_spotdown.org.mp3', title: 'UltraBakano', artist: 'El Jordan 23', album: 'Palabreo', duration: '3:10' },
+            { file: 'Vaqueros y mercurial_spotdown.org.mp3', title: 'Vaqueros y mercurial', artist: 'Polimá Westcoast', album: 'Ultra Solo', duration: '3:00' }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const dom = {
+            mainView: document.getElementById('mainView'),
+            stickyHeader: document.getElementById('stickyHeader'),
+            songList: document.getElementById('songList'),
+            mainPlayIcon: document.getElementById('mainPlayIcon'),
+            barPlayIcon: document.getElementById('barPlayIcon'),
+            shuffleBtn: document.getElementById('shuffleBtn'),
+            repeatBtn: document.getElementById('repeatBtn'),
+            progBar: document.getElementById('progBar'),
+            progFill: document.getElementById('progFill'),
+            currTime: document.getElementById('currTime'),
+            durTime: document.getElementById('durTime'),
+            currentTitle: document.getElementById('currentTitle'),
+            currentArtist: document.getElementById('currentArtist'),
+            volIcon: document.getElementById('volIcon'),
+            volFill: document.getElementById('volFill'),
+        };
+
+        // --- AUDIO ENGINE STATE ---
+        let audio = document.getElementById('audio');
+
+        let state = {
+            isPlaying: false,
+            isShuffle: false,
+            isRepeat: false,
+            currentIdx: 0,
+            lastVolume: 1,
+        };
+
+        // --- INITIALIZATION ---
+        function init() {
+            renderPlaylist();
+            setupListeners();
+        }
+
+        function renderPlaylist() {
+            const equalizerHTML = `
+                <div class="equalizer-gif">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            `;
+            
+            dom.songList.innerHTML = songs.map((s, i) => `
+                <tr class="song-row" id="row-${i}" onclick="playSong(${i})">
+                    <td class="index-col">
+                        <span class="song-index">${i+1}</span>
+                        <i class="fa-solid fa-play play-icon-small"></i>
+                        ${equalizerHTML}
+                    </td>
+                    <td>
+                        <div class="song-title">${s.title}</div>
+                        <div class="song-artist">${s.artist}</div>
+                    </td>
+                    <td>${s.album}</td>
+                    <td style="text-align: right;">${s.duration}</td>
+                </tr>
+            `).join('');
+        }
+
+        function setupListeners() {
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', () => {
+                if (state.isRepeat) {
+                    audio.currentTime = 0;
+                    audio.play();
+                } else {
+                    nextSong();
+                }
+            });
+            audio.addEventListener('error', () => {
+                console.warn(`Error loading: ${audio.src}. Skipping.`);
+                nextSong();
+            });
+            
+            dom.mainView.addEventListener('scroll', handleScroll);
+        }
+
+        // --- CORE AUDIO LOGIC ---
+        function playSong(idx) {
+            state.currentIdx = idx;
+            audio.src = `music/${songs[idx].file}`;
+            audio.play().then(() => {
+                state.isPlaying = true;
+                updateUI();
+            }).catch(e => console.error("Playback failed:", e));
+        }
+
+        function togglePlay() {
+            if (!audio.src) return playSong(0);
+
+            if (state.isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+            state.isPlaying = !state.isPlaying;
+            updateUI();
+        }
+
+        function getNextSongIndex() {
+            if (state.isShuffle) {
+                let nextIdx;
+                do { nextIdx = Math.floor(Math.random() * songs.length); }
+                while (songs.length > 1 && nextIdx === state.currentIdx);
+                return nextIdx;
+            }
+            return (state.currentIdx + 1) % songs.length;
+        }
+
+        function prevSong() { playSong((state.currentIdx - 1 + songs.length) % songs.length); }
+        function nextSong() { playSong(getNextSongIndex()); }
+
+        // --- UI & CONTROLS ---
+        function updateUI() {
+            const s = songs[state.currentIdx];
+            dom.currentTitle.innerText = s.title;
+            dom.currentArtist.innerText = s.artist;
+            
+            const iconClass = state.isPlaying && !state.isFading ? 'fa-pause' : 'fa-play';
+            dom.mainPlayIcon.className = `fa-solid ${iconClass}`;
+            dom.barPlayIcon.className = `fa-solid ${iconClass}`;
+
+            document.querySelectorAll('.song-row').forEach(r => r.classList.remove('active'));
+            document.getElementById(`row-${state.currentIdx}`).classList.add('active');
+
+            dom.shuffleBtn.classList.toggle('active', state.isShuffle);
+            dom.repeatBtn.classList.toggle('active', state.isRepeat);
+        }
+
+        function updateProgress() {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                dom.progFill.style.width = `${pct}%`;
+                dom.currTime.innerText = fmtTime(audio.currentTime);
+                dom.durTime.innerText = fmtTime(audio.duration);
+            }
+        }
+
+        function seek(e) {
+            const w = e.currentTarget.clientWidth;
+            audio.currentTime = (e.offsetX / w) * audio.duration;
+        }
+
+        function setVolume(e, value) {
+            let vol = value;
+            if (e) {
+                const w = e.currentTarget.clientWidth;
+                vol = Math.max(0, Math.min(1, e.offsetX / w));
+            }
+            if (vol > 0) state.lastVolume = vol;
+            audio.volume = vol;
+            dom.volFill.style.width = `${vol * 100}%`;
+            dom.volIcon.className = `fa-solid ${vol === 0 ? 'fa-volume-xmark' : 'fa-volume-high'} vol-icon`;
+        }
+
+        function toggleMute() {
+            setVolume(null, audio.volume > 0 ? 0 : state.lastVolume);
+        }
+
+        function toggleShuffle() { state.isShuffle = !state.isShuffle; updateUI(); }
+        function toggleRepeat() { state.isRepeat = !state.isRepeat; updateUI(); }
+
+        function handleScroll() {
+            const isScrolled = dom.mainView.scrollTop > 280;
+            dom.stickyHeader.classList.toggle('scrolled', isScrolled);
+        }
+
+        // --- HELPERS ---
+        function fmtTime(s) {
+            if (isNaN(s)) return '0:00';
+            const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+            return `${m}:${sec < 10 ? '0' + sec : sec}`;
+        }
+
+        // --- GO ---
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Series - SanchezCabron OS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Series Manager</div>
+            <nav class="nav">
+                <a href="index.html">Inicio</a>
+                <a href="series.html" class="active">Series</a>
+                <a href="juegos.html">Juegos</a>
+                <a href="logros.html">🏆 Logros</a>
+                <a href="marcadores.html">Links</a>
+                <a href="perfil.html">Perfil</a>
+                <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section">
+        <!-- Sub-navegación interna del módulo -->
+        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+            <button class="btn" onclick="app.navigate('list')"><i class="fa-solid fa-list"></i> Ver Lista</button>
+            <button class="btn btn-secondary" onclick="app.navigate('add')"><i class="fa-solid fa-plus"></i> Añadir Nueva</button>
+        </div>
+
+        <!-- VISTA 1: Listado -->
+        <div id="view-list" class="view-container">
+            <div class="header-actions">
+                <h2>Mi Colección</h2>
+                <span id="total-counter" class="highlight">0 series</span>
+                <span class="highlight" style="margin-left: 1rem; font-size: 0.9rem;">142h Estimadas</span>
+                <div id="statusCounters" class="status-counters"></div>
+            </div>
+            <div id="seriesGrid" class="series-grid"></div>
+        </div>
+
+        <!-- VISTA 2: Formulario -->
+        <div id="view-add" class="view-container" style="display: none;">
+            <div class="form-container">
+                <h2>Nueva Serie</h2>
+                <form id="addSeriesForm">
+                    <div class="form-group">
+                        <label>Título</label>
+                        <input type="text" id="titleInput" class="terminal-input" required placeholder="Ej: Breaking Bad">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sinopsis</label>
+                        <textarea id="synopsisInput" class="terminal-input" rows="3" placeholder="Breve resumen de la trama..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Año de Salida</label>
+                            <input type="number" id="yearInput" class="terminal-input" placeholder="Ej: 2008">
+                        </div>
+                        <div class="form-group">
+                            <label>Puntuación (0-10)</label>
+                            <input type="number" id="ratingInput" class="terminal-input" min="0" max="10" step="0.1" placeholder="Ej: 9.5">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Capítulos</label>
+                            <input type="number" id="capsInput" class="terminal-input" required min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Duración (min)</label>
+                            <input type="number" id="durationInput" class="terminal-input" required min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre de Archivo (Opcional)</label>
+                        <input type="text" id="fileNameInput" class="terminal-input" placeholder="Ej: edicion_especial.png">
+                        <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                            ℹ️ Vacío = <code>img/portadas/titulo.jpg</code>
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado Inicial</label>
+                        <select id="statusInput" class="terminal-input">
+                            <option value="viendo">👀 Viendo</option>
+                            <option value="simulcast">📡 Simulcast</option>
+                            <option value="visto">✅ Visto</option>
+                            <option value="abandonado">❌ Abandonado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Guardar Serie</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Persistencia Local Activa</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Detalles -->
+    <div id="detailsModal" class="modal-overlay" style="display: none;" onclick="app.closeDetails(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal-btn" onclick="app.closeDetails()">&times;</button>
+            <div class="modal-body">
+                <img id="modalCover" src="" alt="Portada" class="modal-img-large">
+                <div class="modal-info">
+                    <div class="modal-header-row">
+                        <h2 id="modalTitle"></h2>
+                        <button id="editBtn" class="btn-icon" onclick="app.toggleEditMode()" title="Editar Información"><i class="fa-solid fa-pencil"></i></button>
+                    </div>
+                    <div class="modal-meta-row">
+                        <span class="meta-badge"><i class="fa-solid fa-calendar-days"></i> <span id="modalYear"></span></span>
+                        <span class="meta-badge"><i class="fa-solid fa-star"></i> <span id="modalRating"></span></span>
+                    </div>
+                    <p id="modalSynopsis" class="modal-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="logros.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

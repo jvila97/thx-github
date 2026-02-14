@@ -1,0 +1,1014 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Variables CSS para facilitar cambios de color */
+:root {
+    --primary-color: #8b5cf6; /* Violeta Neón */
+    --secondary-color: #6d28d9;
+    --accent-color: #06b6d4; /* Cyan Eléctrico */
+    --text-color: #f3f4f6;
+    --text-muted: #9ca3af;
+    --bg-color: #0f172a; /* Fondo oscuro profundo */
+    
+    /* Glassmorphism Vars */
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(255, 255, 255, 0.03);
+    
+    --danger: #ef4444;
+    --spacing: 1rem;
+    
+    /* Colores de Estado */
+    --status-visto: #10b981; /* Esmeralda */
+    --status-viendo: #f59e0b; /* Ámbar */
+    --status-simulcast: #3b82f6; /* Azul Real */
+    --status-abandonado: #f43f5e; /* Rosa/Rojo */
+}
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevenir scroll horizontal por decoraciones */
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utilidades */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    animation: fadeIn 0.6s ease-out;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Header */
+.header {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1.2rem 0;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+.nav a {
+    margin-left: 1.5rem;
+    font-weight: 500;
+    transition: color 0.3s;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+}
+
+.nav a:hover, .nav a.active {
+    color: #fff;
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+.highlight {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+    filter: brightness(1.1);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    margin-right: 1rem;
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-muted);
+    color: #fff;
+}
+
+/* Secciones Generales */
+.section {
+    padding: 2rem 0;
+    min-height: 80vh;
+}
+
+/* Grid de Series */
+.series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.series-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.series-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.card-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1rem;
+    flex-grow: 1;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.card-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.card-hours {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.series-card:hover .card-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.delete-btn:hover { background: var(--danger); }
+.edit-btn:hover { background: var(--primary-color); }
+
+/* Footer */
+.footer {
+    background: rgba(15, 23, 42, 0.8);
+}
+
+/* Footer */
+.footer {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    color: var(--text-muted);
+    border-top: 1px solid var(--glass-border);
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto;
+    font-size: 0.8rem;
+}
+
+/* Formulario */
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.terminal-input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.terminal-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.file-custom-btn {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px dashed var(--text-muted);
+    color: var(--text-muted);
+    transition: all 0.3s;
+}
+
+.file-custom-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.file-upload-wrapper input[type="file"] {
+    display: none;
+}
+
+.img-preview {
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow: hidden;
+    border-radius: 6px;
+}
+.img-preview img {
+    width: 100%;
+    height: auto;
+}
+
+/* --- Sistema de Estados --- */
+
+.status-counters {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.status-pill {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 500;
+}
+
+.status-select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.75rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    transition: background-color 0.3s;
+}
+
+/* Variantes de color para el select y badges */
+.bg-visto { background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.bg-viendo { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.bg-simulcast { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.bg-abandonado { background-color: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+
+/* --- Estilos del Hub (Index) --- */
+.hub-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.hub-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    flex: 1 1 200px;
+    max-width: 350px;
+}
+
+.hub-card:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px -10px rgba(6, 182, 212, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.hub-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.hub-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Key Part 4: 7 */
+
+/* --- Modal de Detalles (Glassmorphism) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .modal-body { flex-direction: row; }
+}
+
+.modal-img-large {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+@media (min-width: 768px) {
+    .modal-img-large { width: 40%; height: auto; min-height: 450px; }
+}
+
+.modal-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+
+.modal-info { padding: 2rem; flex: 1; }
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 1;
+    transition: background 0.2s;
+}
+.close-modal-btn:hover { background: var(--danger); }
+
+.modal-meta-row { display: flex; gap: 1rem; margin: 1rem 0; }
+.meta-badge { background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; color: var(--accent-color); display: flex; align-items: center; gap: 0.5rem; }
+.modal-text { color: #ccc; line-height: 1.8; font-size: 1rem; white-space: pre-line; }
+.no-scroll { overflow: hidden; }
+
+/* Estilos de Edición */
+.modal-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--primary-color);
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-family: inherit;
+    width: 100%;
+    font-size: inherit;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0.5rem;
+}
+.btn-icon:hover { color: var(--primary-color); }
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--status-visto);
+    color: #000;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    z-index: 2000;
+    pointer-events: none;
+    font-weight: 600;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Contenedor de edición de imagen */
+#coverEditWrapper {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* --- Sistema de Logros --- */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.achievement-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    opacity: 0.6; /* Estado Bloqueado */
+    filter: grayscale(1);
+}
+
+.achievement-card.unlocked {
+    opacity: 1;
+    filter: grayscale(0);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+    background: rgba(6, 182, 212, 0.05);
+}
+
+.achievement-card.unlocked .achievement-icon {
+    color: #fbbf24; /* Dorado para desbloqueados */
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+    animation: pulseIcon 2s infinite;
+}
+
+@keyframes pulseIcon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.achievement-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+    color: #fff;
+}
+
+.achievement-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Toast de Logro Desbloqueado (Reutiliza estilos base de toast pero posicionado arriba) */
+.achievement-toast {
+    top: 20px;
+    bottom: auto;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--accent-color);
+}
+
+/* --- ESTILOS BIBLIOTECA DE JUEGOS (TIPO STEAM) --- */
+.games-body {
+    background-color: #1b2838;
+    color: #c7d5e0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.games-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-buttons .btn-secondary {
+    color: #c7d5e0;
+    border-color: #2a475e;
+    background-color: #2a475e;
+}
+
+.filter-buttons .btn-secondary:hover, .filter-buttons .btn-secondary.active {
+    background-color: #66c0f4;
+    border-color: #66c0f4;
+    color: #1b2838;
+}
+
+.games-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.game-card {
+    display: flex;
+    background-color: #171a21;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.game-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(102, 192, 244, 0.3);
+    border-color: #66c0f4;
+}
+
+.game-card-img {
+    width: 184px; /* Steam capsule size */
+    height: 69px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.game-card-info {
+    flex-grow: 1;
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.game-card-title {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.game-card-meta {
+    font-size: 0.8rem;
+    color: #acb2b8;
+    display: flex;
+    gap: 1rem;
+}
+
+.game-card-progress-bar {
+    width: 100%;
+    background-color: #2a475e;
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 4px;
+}
+
+.game-card-progress-fill {
+    height: 100%;
+    background-color: #66c0f4;
+    border-radius: 2px;
+}
+
+.game-card-score {
+    width: 70px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.score-green { background-color: #6c3; }
+.score-yellow { background-color: #fc3; }
+.score-red { background-color: #f00; }
+.score-none { background-color: #333; }
+
+/* --- Drawer de Detalles --- */
+.drawer {
+    position: fixed;
+    top: 0;
+    right: -450px; /* Start off-screen */
+    width: 420px;
+    height: 100%;
+    background-color: #171a21;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer.open {
+    right: 0;
+}
+
+.drawer-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2a475e;
+}
+
+.drawer-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.drawer-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.drawer-content img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.drawer-info-item {
+    margin-bottom: 1rem;
+}
+
+.drawer-info-item strong {
+    display: block;
+    color: #66c0f4;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.drawer-info-item span {
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.drawer-actions {
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    background-color: #1b2838;
+    border-top: 1px solid #2a475e;
+}
+
+/* --- Modal Formulario --- */
+.modal-form-input {
+    background: #2a475e;
+    border: 1px solid #66c0f4;
+    color: #fff;
+}
+
+.metacritic-input-wrapper {
+    position: relative;
+}
+
+.metacritic-color-indicator {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 10px;
+    border-radius: 0 7px 7px 0;
+    transition: background-color 0.3s;
+}
+.achievement-icon {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    min-width: 50px;
+    text-align: center;
+}
+
+.achievement-card.unlocked .achievement-icon {
+    color: #fbbf24; /* Dorado para desbloqueados */
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+    animation: pulseIcon 2s infinite;
+}
+
+@keyframes pulseIcon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.achievement-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+    color: #fff;
+}
+
+.achievement-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Toast de Logro Desbloqueado (Reutiliza estilos base de toast pero posicionado arriba) */
+.achievement-toast {
+    top: 20px;
+    bottom: auto;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--accent-color);
+}
+
+/* --- Marcadores (Bookmarks) --- */
+.bookmarks-toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.bookmarks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.5rem;
+}
+
+.bookmark-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    cursor: pointer;
+    height: 180px;
+}
+
+.bookmark-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.bookmark-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    object-fit: contain;
+    background: rgba(255,255,255,0.05);
+    padding: 8px;
+    transition: transform 0.3s;
+}
+
+.bookmark-card:hover .bookmark-icon {
+    transform: scale(1.1);
+}
+
+.bookmark-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.bookmark-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.bookmark-card:hover .bookmark-delete {
+    opacity: 1;
+}
+
+.bookmark-delete:hover {
+    transform: scale(1.1);
+    background: var(--danger);
+}
+
+.floating-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 90;
+}
+
+.floating-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 15px 35px rgba(139, 92, 246, 0.7);
+}
+
+/* --- Decoración Futurista (Marcadores) --- */
+@keyframes breathing {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.7; }
+}
+
+/* Estilos para Decoración de Personajes (Marcadores) */
+#decoracion-izq, #decoracion-der {
+    position: fixed;
+    bottom: 0;
+    width: 600px; /* Ajuste óptimo entre 350-450px */
+    height: auto;
+    z-index: -1;
+    pointer-events: none; /* Permite clicks a través de la imagen */
+    filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.4)); /* Brillo rojizo solicitado */
+    transition: opacity 0.3s ease;
+}
+
+#decoracion-izq { left: 20px; }
+#decoracion-der { right: 20px; }
+
+/* Ocultar en resoluciones menores a 1200px para evitar solapamiento */
+@media (max-width: 1200px) {
+    #decoracion-izq, #decoracion-der {
+        display: none;
+    }
+}

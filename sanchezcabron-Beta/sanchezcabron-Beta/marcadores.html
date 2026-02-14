@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcadores - SanchezCabron OS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Bookmarks</div>
+            <nav class="nav">
+                <a href="index.html">Inicio</a>
+                <a href="series.html">Series</a>
+                <a href="juegos.html">Juegos</a>
+                <a href="logros.html">🏆 Logros</a>
+                <a href="marcadores.html" class="active">Links</a>
+                <a href="perfil.html">Perfil</a>
+                <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
+            </nav>
+        </div>
+    </header>
+    <!-- Añadimos position: relative para que las decoraciones se anclen a este contenedor -->
+    <main class="container section" style="position: relative;">
+        <!-- Elementos Decorativos de Fondo -->
+        <img src="img/decoracion/circuito1.png" id="decoracion-izq" alt="Personaje Izquierda">
+        <img src="img/decoracion/circuito2.png" id="decoracion-der" alt="Personaje Derecha">
+
+        <div class="bookmarks-toolbar">
+            <button class="btn btn-secondary filter-btn active" data-category="all">Todos</button>
+            <button class="btn btn-secondary filter-btn" data-category="Trabajo">Trabajo</button>
+            <button class="btn btn-secondary filter-btn" data-category="Social">Social</button>
+            <button class="btn btn-secondary filter-btn" data-category="Entretenimiento">Entretenimiento</button>
+            <button class="btn btn-secondary filter-btn" data-category="Otros">Otros</button>
+        </div>
+
+        <div id="bookmarksGrid" class="bookmarks-grid">
+            <!-- Se llena con JS -->
+        </div>
+
+        <!-- Botón Flotante -->
+        <button id="addBookmarkBtn" class="floating-btn" title="Añadir Marcador">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+
+        <!-- Modal Añadir -->
+        <div id="bookmarkModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content form-container" style="max-width: 500px;">
+                <button id="closeBookmarkModal" class="close-modal-btn">&times;</button>
+                <h2>Nuevo Marcador</h2>
+                <form id="bookmarkForm">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="bmName" class="terminal-input" required placeholder="Ej: YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="url" id="bmUrl" class="terminal-input" required placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="bmCategory" class="terminal-input">
+                            <option value="Trabajo">Trabajo</option>
+                            <option value="Social">Social</option>
+                            <option value="Entretenimiento">Entretenimiento</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Guardar</button>
+                </form>
+            </div>
+        </div>
+
+        <span id="digit-3" style="display:none">8</span>
+    </main>
+    <script src="logros.js"></script>
+    <script src="marcadores.js"></script>
+</body>
+</html>
