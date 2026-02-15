@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicles - SanchezCabron OS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="vlog-mode">
+    <header class="header">
+        <div class="container">
+            <div class="logo">Chronicles</div>
+            <nav class="nav">
+                <a href="index.html">Inicio</a>
+                <a href="series.html">Series</a>
+                <a href="juegos.html">Juegos</a>
+                <a href="historias.html" class="active">Historias</a>
+                <a href="logros.html">🏆 Logros</a>
+                <a href="marcadores.html">Links</a>
+                <a href="perfil.html">Perfil</a>
+                <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section vlog-layout">
+        <!-- Botón de Navegación Flotante -->
+        <a href="index.html" class="back-to-hub-btn glass-effect">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Hub
+        </a>
+
+        <!-- Header del Vlog -->
+        <div class="vlog-header">
+            <h1 class="vlog-title">CHRONICLES</h1>
+            <p class="vlog-subtitle">Registros locales del sistema SANCHEZCABRON OS</p>
+            
+            <!-- Barra de Filtros (Estética) -->
+            <div class="filter-bar">
+                <button class="filter-pill active">Todas</button>
+                <button class="filter-pill">Épicas</button>
+                <button class="filter-pill">Personales</button>
+                <button class="filter-pill">Sistema</button>
+            </div>
+        </div>
+
+        <!-- VISTA 1: Biblioteca (Grid) -->
+        <div id="view-library">
+            <div id="storiesGrid" class="stories-grid-container">
+                <!-- Empty State se maneja en JS -->
+            </div>
+        </div>
+
+        <!-- Botón Flotante para Nueva Historia -->
+        <button id="btnNewStory" class="floating-btn" title="Crear Nueva Historia">
+            <i class="fa-solid fa-feather-pointed"></i>
+        </button>
+    </main>
+
+    <!-- Modal Creación de Historia -->
+    <div id="storyModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content form-container" style="max-width: 500px;">
+            <button id="closeStoryModal" class="close-modal-btn">&times;</button>
+            <h2><i class="fa-solid fa-book-journal-whills"></i> Nueva Crónica</h2>
+            <form id="storyForm">
+                <div class="form-group">
+                    <label>Título de la Historia</label>
+                    <input type="text" id="storyTitle" class="terminal-input" required placeholder="Ej: Las Crónicas de Sanchez">
+                </div>
+                
+                <div class="form-group">
+                    <label>Género</label>
+                    <select id="storyGenre" class="terminal-input">
+                        <option value="Aventura">⚔️ Aventura</option>
+                        <option value="Sci-Fi">🚀 Sci-Fi</option>
+                        <option value="Fantasía">🔮 Fantasía</option>
+                        <option value="Terror">👻 Terror</option>
+                        <option value="Slice of Life">☕ Slice of Life</option>
+                        <option value="Código">💻 Código / Dev</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Portada (Nombre de archivo en img/historias/)</label>
+                    <input type="text" id="storyCover" class="terminal-input" placeholder="Ej: portada1.jpg">
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%;">Crear Historia</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Añadir Capítulo -->
+    <div id="chapterModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content form-container" style="max-width: 800px;">
+            <button onclick="document.getElementById('chapterModal').style.display='none'" class="close-modal-btn">&times;</button>
+            <h2><i class="fa-solid fa-pen-nib"></i> Escribir Capítulo</h2>
+            <form id="chapterForm">
+                <div class="form-group">
+                    <label>Título del Capítulo</label>
+                    <input type="text" id="chapTitle" class="terminal-input" required placeholder="Ej: Capítulo 1: El Despertar">
+                </div>
+                <div class="form-group">
+                    <label>Contenido</label>
+                    <textarea id="chapContent" class="terminal-input" rows="15" required placeholder="Escribe aquí tu historia..."></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Guardar Capítulo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Lore / Archivo de Datos -->
+    <div id="loreModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content form-container" style="max-width: 800px; height: 80vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin:0;"><i class="fa-solid fa-database"></i> Archivo de Datos</h2>
+                <button onclick="document.getElementById('loreModal').style.display='none'" class="close-modal-btn" style="position:static;">&times;</button>
+            </div>
+            
+            <!-- Tabs Navegación -->
+            <div class="lore-tabs">
+                <button class="lore-tab-btn active" onclick="app.switchLoreTab('synopsis')">Sinopsis</button>
+                <button class="lore-tab-btn" onclick="app.switchLoreTab('world')">World Building</button>
+                <button class="lore-tab-btn" onclick="app.switchLoreTab('chars')">Personajes</button>
+            </div>
+
+            <!-- Contenido Tabs (Scrollable) -->
+            <div style="flex: 1; overflow-y: auto; padding-right: 10px;">
+                <!-- Tab 1: Sinopsis -->
+                <div id="tab-synopsis" class="lore-panel active">
+                    <div class="form-group">
+                        <label>Resumen de la Trama</label>
+                        <textarea id="loreSynopsis" class="terminal-input" rows="10" placeholder="Escribe aquí el resumen general de la historia..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tab 2: World Building -->
+                <div id="tab-world" class="lore-panel">
+                    <div class="form-group">
+                        <label>Escala de Poder / Niveles (Separa por comas)</label>
+                        <input type="text" id="lorePowerScale" class="terminal-input power-scale-input" placeholder="Ej: RANGO E, RANGO D, RANGO S, CLASE DIOS">
+                    </div>
+                    <div class="form-group">
+                        <label>Reglas del Mundo & Sistema de Magia</label>
+                        <textarea id="loreWorldRules" class="terminal-input tech-font" rows="10" placeholder="Describe cómo funciona la magia, la tecnología o las leyes de este universo..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Personajes -->
+                <div id="tab-chars" class="lore-panel">
+                    <div id="charactersList" class="character-list-container">
+                        <!-- Filas generadas por JS -->
+                    </div>
+                    <button class="btn btn-secondary" onclick="app.addCharacterRow()" style="width:100%; margin-top:1rem; border-style:dashed;"><i class="fa-solid fa-plus"></i> Añadir Personaje</button>
+                </div>
+            </div>
+
+            <button class="btn" onclick="app.saveLore()" style="margin-top: 1rem;">Guardar Archivo</button>
+        </div>
+    </div>
+
+    <!-- Overlay de Lectura (Reader Mode) -->
+    <div id="readerOverlay" class="reader-overlay" style="display: none;">
+        <div class="reader-header">
+            <h3 id="readerStoryTitle" style="color: #fff; margin:0;">Título Historia</h3>
+            <button class="btn btn-secondary" onclick="app.closeReader()" style="margin:0; padding: 0.5rem 1rem;">Cerrar Lectura <i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reader-body">
+            <div id="readerSidebar" class="reader-sidebar">
+                <!-- Lista de capítulos -->
+            </div>
+            <div id="readerContent" class="reader-content-area">
+                <!-- Contenido del capítulo -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Sistema de Narrativa v2.0 - Vlog Style</p>
+        </div>
+    </footer>
+
+    <script src="logros.js"></script>
+    <script src="historias.js"></script>
+</body>
+</html>
