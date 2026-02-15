@@ -46,6 +46,13 @@
 
         <!-- VISTA 1: Biblioteca (Grid) -->
         <div id="view-library">
+            <!-- Barra de Herramientas Global -->
+            <div class="controls-bar">
+                <button class="btn btn-secondary btn-import" onclick="app.triggerImport()"><i class="fa-solid fa-file-import"></i> Importar Historia</button>
+                <button class="btn btn-secondary btn-export" onclick="app.exportLibrary()"><i class="fa-solid fa-file-export"></i> Exportar Biblioteca</button>
+            </div>
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="app.handleImport(event)">
+
             <div id="storiesGrid" class="stories-grid-container">
                 <!-- Empty State se maneja en JS -->
             </div>

@@ -205,6 +205,87 @@ const app = {
         alert('Archivo de Datos actualizado.');
     },
 
+    // --- PORTABILIDAD DE DATOS (IMPORT/EXPORT) ---
+
+    exportStory: (id) => {
+        const story = stories.find(s => s.id === id);
+        if (!story) return;
+        
+        const dataStr = JSON.stringify(story, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        // Nombre de archivo seguro: historia_titulo_limpio.json
+        const safeTitle = story.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        a.download = `historia_${safeTitle}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('Historia exportada.\n\nNOTA: Recuerda copiar manualmente la imagen de portada a la carpeta "img/historias/" en el destino si no es una URL web.');
+    },
+
+    exportLibrary: () => {
+        const dataStr = JSON.stringify(stories, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sanchez_chronicles_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    triggerImport: () => {
+        document.getElementById('importFile').click();
+    },
+
+    handleImport: (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // Caso 1: Importar Librería Completa (Array)
+                if (Array.isArray(importedData)) {
+                    if (confirm(`Se han encontrado ${importedData.length} historias. ¿Fusionar con la librería actual?`)) {
+                        // Fusionar evitando duplicados por ID
+                        importedData.forEach(newStory => {
+                            if (!stories.some(s => s.id === newStory.id)) stories.unshift(newStory);
+                        });
+                        app.saveStories();
+                        alert('Biblioteca importada correctamente.');
+                    }
+                } 
+                // Caso 2: Importar Historia Única (Objeto)
+                else if (importedData.title && importedData.chapters) {
+                    // Generar nuevo ID para evitar conflictos
+                    importedData.id = Date.now(); 
+                    stories.unshift(importedData);
+                    app.saveStories();
+                    alert(`Historia "${importedData.title}" importada.\n\nNOTA: Asegúrate de mover la imagen de portada a la carpeta correcta.`);
+                } else {
+                    alert('Error: Formato de archivo no válido.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error al leer el archivo JSON.');
+            }
+            // Limpiar input para permitir re-importar el mismo archivo
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    },
+
     // --- MODO LECTURA ---
 
     openReader: (id) => {
@@ -286,6 +367,9 @@ const app = {
                     <button class="story-btn btn-read" onclick="app.openReader(${story.id})"><i class="fa-solid fa-book-open"></i> Leer</button>
                     <button class="story-btn btn-add-chap" onclick="app.openChapterManager(${story.id})"><i class="fa-solid fa-plus"></i> Capítulos</button>
                     <button class="story-btn btn-lore" onclick="app.openLoreManager(${story.id})"><i class="fa-solid fa-database"></i> Lore</button>
+                    <button class="story-btn btn-export-card" onclick="app.exportStory(${story.id})" title="Exportar JSON">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
                     <button class="story-btn btn-delete-story" onclick="app.deleteStory(${story.id})">
                         <i class="fa-solid fa-trash"></i>
                     </button>

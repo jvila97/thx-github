@@ -1517,3 +1517,34 @@ label {
     border-radius: 8px;
     align-items: start;
 }
+
+/* --- DATA PORTABILITY --- */
+
+.controls-bar {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn-export {
+    background: rgba(245, 158, 11, 0.15); /* Ámbar */
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.btn-export:hover { background: #f59e0b; color: #000; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+
+.btn-import {
+    background: rgba(59, 130, 246, 0.15); /* Azul */
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.btn-import:hover { background: #3b82f6; color: #fff; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+
+.story-btn.btn-export-card {
+    flex: 0 0 36px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+}
+.story-btn.btn-export-card:hover { background: #fff; color: #000; }
