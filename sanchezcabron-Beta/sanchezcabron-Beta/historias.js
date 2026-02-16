@@ -8,6 +8,7 @@ const FALLBACK_COVER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 
 let stories = [];
 let currentStoryId = null; // Para saber qué historia estamos editando/leyendo
+let currentChapterIndex = 0; // Índice del capítulo actual en lectura
 
 const app = {
     init: () => {
@@ -133,7 +134,7 @@ const app = {
 
         // Inicializar objeto lore si no existe (migración de datos antiguos)
         if (!story.lore) {
-            story.lore = { synopsis: '', powerScale: '', worldRules: '', characters: [] };
+            story.lore = { synopsis: '', powerScale: '', worldRules: '', characters: [], album: [] };
         }
 
         // Rellenar campos
@@ -148,6 +149,15 @@ const app = {
             story.lore.characters.forEach(char => app.addCharacterRow(char.name, char.desc));
         } else {
             app.addCharacterRow(); // Añadir uno vacío por defecto
+        }
+        
+        // Renderizar Álbum
+        const albumContainer = document.getElementById('albumList');
+        albumContainer.innerHTML = '';
+        if (story.lore.album && story.lore.album.length > 0) {
+            story.lore.album.forEach(img => app.addAlbumImageRow(img.url, img.name, img.desc, img.rarity));
+        } else {
+            app.addAlbumImageRow(); // Uno vacío
         }
 
         // Resetear tabs a la primera
@@ -168,6 +178,7 @@ const app = {
         if(tabName === 'synopsis') buttons[0].classList.add('active');
         if(tabName === 'world') buttons[1].classList.add('active');
         if(tabName === 'chars') buttons[2].classList.add('active');
+        if(tabName === 'album') buttons[3].classList.add('active');
     },
 
     addCharacterRow: (name = '', desc = '') => {
@@ -182,26 +193,56 @@ const app = {
         container.appendChild(div);
     },
 
+    addAlbumImageRow: (url = '', name = '', desc = '', rarity = 'common') => {
+        const container = document.getElementById('albumList');
+        const div = document.createElement('div');
+        div.className = 'character-row'; // Reutilizamos estilo de fila
+        div.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
+                <input type="text" class="terminal-input img-url" placeholder="Archivo (ej: m1.png)" value="${url}">
+                <select class="rarity-select img-rarity">
+                    <option value="common" ${rarity === 'common' ? 'selected' : ''}>Común</option>
+                    <option value="rare" ${rarity === 'rare' ? 'selected' : ''}>Raro</option>
+                    <option value="epic" ${rarity === 'epic' ? 'selected' : ''}>Épico</option>
+                    <option value="legendary" ${rarity === 'legendary' ? 'selected' : ''}>Legendario</option>
+                </select>
+            </div>
+            <input type="text" class="terminal-input img-name" placeholder="Nombre Entidad" value="${name}" style="flex:1;">
+            <textarea class="terminal-input img-desc" rows="2" placeholder="Descripción breve" style="flex:2;">${desc}</textarea>
+            <button class="action-btn delete-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
+        `;
+        container.appendChild(div);
+    },
+
     saveLore: () => {
         if (!currentStoryId) return;
         const story = stories.find(s => s.id === currentStoryId);
         
         // Recopilar personajes
-        const charRows = document.querySelectorAll('.character-row');
+        const charRows = document.querySelectorAll('#charactersList .character-row');
         const characters = Array.from(charRows).map(row => ({
             name: row.querySelector('.char-name').value,
             desc: row.querySelector('.char-desc').value
         })).filter(c => c.name.trim() !== ''); // Filtrar vacíos
 
+        // Recopilar Álbum
+        const albumRows = document.querySelectorAll('#albumList .character-row');
+        const album = Array.from(albumRows).map(row => ({
+            url: row.querySelector('.img-url').value,
+            name: row.querySelector('.img-name').value,
+            desc: row.querySelector('.img-desc').value,
+            rarity: row.querySelector('.img-rarity').value
+        })).filter(a => a.url.trim() !== '');
+
         story.lore = {
             synopsis: document.getElementById('loreSynopsis').value,
             powerScale: document.getElementById('lorePowerScale').value,
             worldRules: document.getElementById('loreWorldRules').value,
-            characters: characters
+            characters: characters,
+            album: album
         };
 
         app.saveStories();
-        document.getElementById('loreModal').style.display = 'none';
         alert('Archivo de Datos actualizado.');
     },
 
@@ -292,25 +333,11 @@ const app = {
         const story = stories.find(s => s.id === id);
         if (!story) return;
 
-        document.getElementById('readerStoryTitle').textContent = story.title;
-        const sidebar = document.getElementById('readerSidebar');
-        const contentArea = document.getElementById('readerContent');
+        currentStoryId = id;
+        const savedIndex = localStorage.getItem(`sanchez_bookmark_${id}`);
+        currentChapterIndex = savedIndex ? parseInt(savedIndex) : 0;
 
-        // Generar Sidebar
-        if (story.chapters.length === 0) {
-            sidebar.innerHTML = '<p style="color:#666; padding:1rem;">No hay capítulos aún.</p>';
-            contentArea.innerHTML = '<div style="text-align:center; margin-top:5rem; color:#666;"><h3>Historia en construcción</h3><p>El autor aún no ha publicado capítulos.</p></div>';
-        } else {
-            sidebar.innerHTML = story.chapters.map((chap, index) => `
-                <div class="chapter-link" onclick="app.loadChapterContent(${id}, ${index}, this)">
-                    ${index + 1}. ${chap.title}
-                </div>
-            `).join('');
-            
-            // Cargar el primero por defecto
-            app.loadChapterContent(id, 0, sidebar.querySelector('.chapter-link'));
-        }
-
+        app.renderBookPage();
         document.getElementById('readerOverlay').style.display = 'flex';
     },
 
@@ -318,21 +345,177 @@ const app = {
         document.getElementById('readerOverlay').style.display = 'none';
     },
 
-    loadChapterContent: (storyId, chapterIndex, element) => {
-        const story = stories.find(s => s.id === storyId);
-        const chapter = story.chapters[chapterIndex];
-        
-        // Highlight sidebar
-        document.querySelectorAll('.chapter-link').forEach(el => el.classList.remove('active'));
-        if(element) element.classList.add('active');
+    renderBookPage: () => {
+        const story = stories.find(s => s.id === currentStoryId);
+        if (!story || !story.chapters.length) {
+            document.getElementById('pageRightContent').innerHTML = '<p style="text-align:center; margin-top:50%;">No hay capítulos disponibles.</p>';
+            return;
+        }
 
-        // Render Content (convertir saltos de línea a párrafos)
+        // Validar índice
+        if (currentChapterIndex < 0) currentChapterIndex = 0;
+        if (currentChapterIndex >= story.chapters.length) currentChapterIndex = story.chapters.length - 1;
+
+        const chapter = story.chapters[currentChapterIndex];
+        
+        // --- PÁGINA IZQUIERDA (Portada / Info) ---
+        const leftHTML = `
+            <div class="book-title-page">
+                <img src="${story.cover || FALLBACK_COVER}" class="book-cover-mini">
+                <h2 style="color:var(--primary-color); margin-bottom:0.5rem;">${story.title}</h2>
+                <div style="width:50px; height:2px; background:var(--accent-color); margin: 1rem auto;"></div>
+                <h3 style="color:#888;">${chapter.title}</h3>
+                <p style="font-size:0.9rem; color:#666; margin-top:2rem;">
+                    Capítulo ${currentChapterIndex + 1} de ${story.chapters.length}
+                </p>
+            </div>
+        `;
+        document.getElementById('pageLeftContent').innerHTML = leftHTML;
+
+        // --- PÁGINA DERECHA (Texto) ---
         const formattedContent = chapter.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
         
-        document.getElementById('readerContent').innerHTML = `
-            <h2>${chapter.title}</h2>
+        const rightHTML = `
+            <h2 class="chapter-title-large">${chapter.title}</h2>
             <div class="chapter-body">${formattedContent}</div>
         `;
+        
+        const rightContainer = document.getElementById('pageRightContent');
+        rightContainer.innerHTML = rightHTML;
+        rightContainer.scrollTop = 0; // Reset scroll
+
+        // Actualizar UI
+        document.getElementById('pageNumberDisplay').textContent = currentChapterIndex + 1;
+        document.getElementById('readerProgress').textContent = `Capítulo ${currentChapterIndex + 1}/${story.chapters.length}`;
+        
+        // Estado del Marcapáginas
+        const savedIndex = localStorage.getItem(`sanchez_bookmark_${currentStoryId}`);
+        const ribbon = document.getElementById('bookmarkRibbon');
+        if (savedIndex && parseInt(savedIndex) === currentChapterIndex) {
+            ribbon.classList.add('active');
+        } else {
+            ribbon.classList.remove('active');
+        }
+    },
+
+    nextChapter: () => {
+        const story = stories.find(s => s.id === currentStoryId);
+        if (story && currentChapterIndex < story.chapters.length - 1) {
+            const book = document.getElementById('book3d');
+            book.classList.add('anim-flip-next');
+            
+            setTimeout(() => {
+                currentChapterIndex++;
+                app.renderBookPage();
+                book.classList.remove('anim-flip-next');
+            }, 300); // Mitad de la animación (0.6s)
+        }
+    },
+
+    prevChapter: () => {
+        if (currentChapterIndex > 0) {
+            const book = document.getElementById('book3d');
+            book.classList.add('anim-flip-prev');
+            
+            setTimeout(() => {
+                currentChapterIndex--;
+                app.renderBookPage();
+                book.classList.remove('anim-flip-prev');
+            }, 300);
+        }
+    },
+
+    toggleBookmark: () => {
+        const ribbon = document.getElementById('bookmarkRibbon');
+        if (ribbon.classList.contains('active')) {
+            localStorage.removeItem(`sanchez_bookmark_${currentStoryId}`);
+            ribbon.classList.remove('active');
+        } else {
+            localStorage.setItem(`sanchez_bookmark_${currentStoryId}`, currentChapterIndex);
+            ribbon.classList.add('active');
+            // Pequeña animación visual
+            ribbon.style.transform = 'scale(1.2)';
+            setTimeout(() => ribbon.style.transform = 'scale(1)', 200);
+        }
+    },
+
+    toggleReaderIndex: () => {
+        // Reutilizamos el modal de Lore pero solo mostrando la lista de capítulos si quisiéramos
+        // Por simplicidad, usamos un prompt o alert, o podríamos abrir el modal de Lore
+        // Para UX pro, abrimos el modal de Lore en la tab de Sinopsis
+        app.openLoreManager(currentStoryId);
+    },
+
+    showReaderLore: () => {
+        const story = stories.find(s => s.id === currentStoryId);
+        if (!story || !story.lore) {
+            alert("No hay datos de archivo disponibles para esta historia.");
+            return;
+        }
+        
+        // Rellenar Terminal
+        document.getElementById('termSynopsis').textContent = story.lore.synopsis || "Sin datos.";
+        document.getElementById('termRules').textContent = story.lore.worldRules || "Sin datos.";
+        
+        // Escala de Poder
+        const powerList = document.getElementById('termPowerScale');
+        powerList.innerHTML = '';
+        if (story.lore.powerScale) {
+            const levels = story.lore.powerScale.split(',');
+            levels.forEach((level, index) => {
+                const cleanLevel = level.trim();
+                // Determinar color basado en posición relativa
+                let rankClass = 'rank-low';
+                const ratio = index / levels.length;
+                if (ratio > 0.3) rankClass = 'rank-mid';
+                if (ratio > 0.6) rankClass = 'rank-high';
+                if (cleanLevel.toLowerCase().includes('dios') || cleanLevel.toLowerCase().includes('god') || ratio > 0.9) rankClass = 'rank-god';
+
+                const div = document.createElement('div');
+                div.className = `power-bar-item ${rankClass}`;
+                div.innerHTML = `
+                    <span class="power-rank-name">${cleanLevel}</span>
+                    <span class="power-rank-badge">Tier ${index + 1}</span>
+                `;
+                powerList.appendChild(div);
+            });
+        } else {
+            powerList.innerHTML = '<p class="lore-text">No hay datos de escala.</p>';
+        }
+
+        // Álbum
+        const albumGrid = document.getElementById('termAlbumGrid');
+        albumGrid.innerHTML = '';
+        if (story.lore.album && story.lore.album.length > 0) {
+            story.lore.album.forEach(ent => {
+                // Procesar ruta de imagen: si es solo nombre, buscar en img/historias/album/
+                let imageSrc = ent.url;
+                if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:') && !imageSrc.startsWith('img/')) {
+                    imageSrc = `img/historias/album/${imageSrc}`;
+                }
+
+                const card = document.createElement('div');
+                card.className = `gallery-card rarity-${ent.rarity}`;
+                card.innerHTML = `
+                    <img src="${imageSrc}" class="gallery-img" onerror="this.src='${FALLBACK_COVER}'">
+                    <div class="gallery-overlay">
+                        <div class="gallery-info">
+                            <span class="gallery-name">${ent.name}</span>
+                            <span class="gallery-desc">${ent.desc}</span>
+                        </div>
+                    </div>
+                `;
+                albumGrid.appendChild(card);
+            });
+        } else {
+            albumGrid.innerHTML = '<p class="lore-text" style="grid-column: 1/-1; text-align:center;">No hay imágenes en la galería.</p>';
+        }
+
+        document.getElementById('readerLoreOverlay').style.display = 'flex';
+    },
+
+    closeReaderLore: () => {
+        document.getElementById('readerLoreOverlay').style.display = 'none';
     },
 
     renderLibrary: () => {

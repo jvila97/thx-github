@@ -6,6 +6,7 @@
     <title>Chronicles - SanchezCabron OS</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 </head>
 <body class="vlog-mode">
     <header class="header">
@@ -129,6 +130,7 @@
                 <button class="lore-tab-btn active" onclick="app.switchLoreTab('synopsis')">Sinopsis</button>
                 <button class="lore-tab-btn" onclick="app.switchLoreTab('world')">World Building</button>
                 <button class="lore-tab-btn" onclick="app.switchLoreTab('chars')">Personajes</button>
+                <button class="lore-tab-btn" onclick="app.switchLoreTab('album')">Álbum</button>
             </div>
 
             <!-- Contenido Tabs (Scrollable) -->
@@ -161,6 +163,14 @@
                     <button class="btn btn-secondary" onclick="app.addCharacterRow()" style="width:100%; margin-top:1rem; border-style:dashed;"><i class="fa-solid fa-plus"></i> Añadir Personaje</button>
                 </div>
             </div>
+            
+            <!-- Tab 4: Álbum de Entidades -->
+            <div id="tab-album" class="lore-panel">
+                <div id="albumList" class="character-list-container">
+                    <!-- Filas generadas por JS -->
+                </div>
+                <button class="btn btn-secondary" onclick="app.addAlbumImageRow()" style="width:100%; margin-top:1rem; border-style:dashed;"><i class="fa-solid fa-image"></i> Añadir Imagen</button>
+            </div>
 
             <button class="btn" onclick="app.saveLore()" style="margin-top: 1rem;">Guardar Archivo</button>
         </div>
@@ -168,16 +178,90 @@
 
     <!-- Overlay de Lectura (Reader Mode) -->
     <div id="readerOverlay" class="reader-overlay" style="display: none;">
-        <div class="reader-header">
-            <h3 id="readerStoryTitle" style="color: #fff; margin:0;">Título Historia</h3>
-            <button class="btn btn-secondary" onclick="app.closeReader()" style="margin:0; padding: 0.5rem 1rem;">Cerrar Lectura <i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="reader-body">
-            <div id="readerSidebar" class="reader-sidebar">
-                <!-- Lista de capítulos -->
+        <!-- Botón Salir Flotante -->
+        <button class="reader-exit-btn" onclick="app.closeReader()"><i class="fa-solid fa-xmark"></i></button>
+        
+        <!-- Botón Flotante Consultar Archivos -->
+        <button class="floating-lore-btn" onclick="app.showReaderLore()"><i class="fa-solid fa-database"></i> DATA</button>
+
+        <!-- Escenario 3D del Libro -->
+        <div class="book-scene">
+            <div class="book-container" id="book3d">
+                <!-- Página Izquierda (Info / Decoración) -->
+                <div class="book-page page-left">
+                    <div class="page-content-wrapper" id="pageLeftContent">
+                        <!-- Se llena con JS -->
+                    </div>
+                </div>
+                
+                <!-- Página Derecha (Texto Principal) -->
+                <div class="book-page page-right">
+                    <div class="bookmark-ribbon" id="bookmarkRibbon" onclick="app.toggleBookmark()" title="Guardar Marcapáginas">
+                        <i class="fa-solid fa-bookmark"></i>
+                    </div>
+                    <div class="page-content-wrapper scrollable-text" id="pageRightContent">
+                        <!-- Se llena con JS -->
+                    </div>
+                    <div class="page-number" id="pageNumberDisplay">1</div>
+                </div>
             </div>
-            <div id="readerContent" class="reader-content-area">
-                <!-- Contenido del capítulo -->
+        </div>
+
+        <!-- Controles de Navegación -->
+        <div class="reader-controls">
+            <button class="nav-arrow prev" onclick="app.prevChapter()"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="nav-arrow next" onclick="app.nextChapter()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <!-- Barra de Herramientas Inferior -->
+        <div class="reader-toolbar">
+            <button class="tool-btn" onclick="app.toggleReaderIndex()"><i class="fa-solid fa-list-ul"></i> Índice</button>
+            <button class="tool-btn" onclick="app.showReaderLore()"><i class="fa-solid fa-book-journal-whills"></i> Lore & Datos</button>
+            <span id="readerProgress" class="reader-status">Capítulo 1/10</span>
+        </div>
+    </div>
+
+    <!-- Overlay Técnico (Modern Data Archive) -->
+    <div id="readerLoreOverlay" class="reader-lore-overlay" style="display: none;">
+        <div class="lore-modern-container">
+            <div class="lore-header">
+                <div class="lore-title">
+                    <i class="fa-solid fa-database"></i> 
+                    <span>ARCHIVOS DE HISTORIA</span>
+                </div>
+                <button class="close-lore-btn" onclick="app.closeReaderLore()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="lore-body">
+                <!-- Columna Principal: Sinopsis y Reglas -->
+                <div class="lore-column-main">
+                    <div class="lore-card">
+                        <h3><i class="fa-solid fa-align-left"></i> Sinopsis</h3>
+                        <p id="termSynopsis" class="lore-text">No data.</p>
+                    </div>
+                    <div class="lore-card">
+                        <h3><i class="fa-solid fa-globe"></i> Reglas del Mundo</h3>
+                        <p id="termRules" class="lore-text">No data.</p>
+                    </div>
+                </div>
+
+                <!-- Columna Lateral: Escala de Poder -->
+                <div class="lore-column-side">
+                    <div class="lore-card">
+                        <h3><i class="fa-solid fa-bolt"></i> Escala de Poder</h3>
+                        <div id="termPowerScale" class="power-scale-visuals"></div>
+                    </div>
+                </div>
+
+                <!-- Sección Inferior: Álbum -->
+                <div class="gallery-section">
+                    <div class="lore-card" style="background: transparent; border: none; padding: 0;">
+                        <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-images"></i> Galería de Entidades</h3>
+                        <div id="termAlbumGrid" class="gallery-grid">
+                        <!-- Se llena con JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
