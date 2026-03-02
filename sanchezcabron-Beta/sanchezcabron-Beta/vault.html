@@ -17,6 +17,7 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            cursor: none;
         }
         .vault-container {
             text-align: center;
@@ -47,7 +48,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
+            cursor: none;
             transition: all 0.3s ease;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
@@ -72,6 +73,32 @@
             font-style: italic;
             margin-bottom: 1.5rem;
             font-weight: 300;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #66c0f4;
+            background: rgba(102, 192, 244, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate3d(var(--mouse-x, 0), var(--mouse-y, 0), 0) translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 0 10px rgba(102, 192, 244, 0.5);
+            will-change: transform;
+        }
+        .custom-cursor.hover-active {
+            width: 40px;
+            height: 40px;
+            border-color: #5c7e10;
+            background: rgba(92, 126, 16, 0.2);
+            box-shadow: 0 0 15px rgba(92, 126, 16, 0.6);
         }
     </style>
 </head>

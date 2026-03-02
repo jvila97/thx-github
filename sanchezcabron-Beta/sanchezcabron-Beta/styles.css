@@ -3,26 +3,27 @@
 
 /* Variables CSS para facilitar cambios de color */
 :root {
-    --primary-color: #8b5cf6; /* Violeta Neón */
-    --secondary-color: #6d28d9;
-    --accent-color: #06b6d4; /* Cyan Eléctrico */
-    --text-color: #f3f4f6;
-    --text-muted: #9ca3af;
-    --bg-color: #0f172a; /* Fondo oscuro profundo */
+    /* --- STEAM THEME PALETTE --- */
+    --primary-color: #66c0f4; /* Steam Blue Link */
+    --secondary-color: #54a5d4; /* Steam Cyan Secondary */
+    --accent-color: #66c0f4;
+    --text-color: #ffffff; /* Blanco Hueso */
+    --text-muted: #acb2b8; /* Gris Suave */
+    --bg-color: #171a21; /* Steam Deep Dark */
     
-    /* Glassmorphism Vars */
-    --glass-bg: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --card-bg: rgba(255, 255, 255, 0.03);
+    /* UI Surfaces */
+    --glass-bg: rgba(27, 40, 56, 0.95); /* Solid Steam Blue */
+    --glass-border: #3d4450; /* Borde Sutil */
+    --card-bg: #1b2838; /* Contenedor Azul Profundo */
     
-    --danger: #ef4444;
+    --danger: #c94a4a; /* Rojo Muted */
     --spacing: 1rem;
     
     /* Colores de Estado */
-    --status-visto: #10b981; /* Esmeralda */
-    --status-viendo: #f59e0b; /* Ámbar */
-    --status-simulcast: #3b82f6; /* Azul Real */
-    --status-abandonado: #f43f5e; /* Rosa/Rojo */
+    --status-visto: #5c7e10; /* Steam Green */
+    --status-viendo: #66c0f4; /* Steam Blue */
+    --status-simulcast: #54a5d4; /* Cyan */
+    --status-abandonado: #c94a4a; /* Red */
 }
 
 /* Reset básico */
@@ -33,16 +34,14 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
     line-height: 1.6;
     color: var(--text-color);
     background-color: var(--bg-color);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
-    background-attachment: fixed;
+    background-image: none;
     min-height: 100vh;
     overflow-x: hidden; /* Prevenir scroll horizontal por decoraciones */
+    cursor: none; /* Ocultar cursor del sistema */
 }
 
 /* Animación de entrada */
@@ -62,13 +61,13 @@ body {
 a {
     text-decoration: none;
     color: inherit;
+    cursor: none;
 }
 
 /* Header */
 .header {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #171a21;
+    backdrop-filter: none;
     border-bottom: 1px solid var(--glass-border);
     position: sticky;
     top: 0;
@@ -85,10 +84,10 @@ a {
 .logo {
     font-weight: bold;
     font-size: 1.2rem;
-    color: #fff;
+    color: var(--text-color);
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    text-shadow: none;
 }
 
 .nav a {
@@ -98,43 +97,44 @@ a {
     text-transform: uppercase;
     font-size: 0.85rem;
     color: var(--text-muted);
-    cursor: pointer;
+    cursor: none;
     letter-spacing: 0.5px;
 }
 
 .nav a:hover, .nav a.active {
-    color: #fff;
-    text-shadow: 0 0 10px var(--primary-color);
+    color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(102, 192, 244, 0.3);
 }
 
 .highlight {
-    color: var(--accent-color);
+    color: var(--primary-color);
     font-weight: bold;
 }
 
 .btn {
     display: inline-block;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: #5c7e10; /* Steam Green */
     color: #fff;
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 2px;
     margin-top: 1rem;
     transition: all 0.3s ease;
     text-transform: uppercase;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    cursor: none;
+    box-shadow: none;
 }
 
 .btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
-    filter: brightness(1.1);
+    transform: none;
+    background: #75a007; /* Steam Green Hover */
+    box-shadow: 0 0 10px rgba(117, 160, 7, 0.4);
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--glass-border);
     color: var(--text-muted);
     margin-right: 1rem;
@@ -142,8 +142,8 @@ a {
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
     color: #fff;
 }
 
@@ -163,21 +163,21 @@ a {
 
 .series-card {
     background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 4px;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .series-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.2);
+    border-color: var(--primary-color);
 }
 
 .card-image {
@@ -193,9 +193,9 @@ a {
 
 .card-title {
     font-size: 1.1rem;
-    font-weight: 700;
+    font-weight: 500;
     margin-bottom: 0.5rem;
-    color: #fff;
+    color: var(--text-color);
 }
 
 .card-meta {
@@ -208,8 +208,8 @@ a {
 
 .card-hours {
     font-size: 0.8rem;
-    color: var(--accent-color);
-    font-weight: 600;
+    color: var(--primary-color);
+    font-weight: normal;
     margin-top: 0.5rem;
     display: block;
 }
@@ -236,7 +236,7 @@ a {
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    cursor: pointer;
+    cursor: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -258,8 +258,8 @@ a {
 
 /* Footer */
 .footer {
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(10px);
+    background: #171a21;
+    backdrop-filter: none;
     color: var(--text-muted);
     border-top: 1px solid var(--glass-border);
     text-align: center;
@@ -273,11 +273,11 @@ a {
     max-width: 600px;
     margin: 0 auto;
     background: var(--card-bg);
-    backdrop-filter: blur(16px);
+    backdrop-filter: none;
     border: 1px solid var(--glass-border);
     padding: 2.5rem;
-    border-radius: 20px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .form-group {
@@ -302,10 +302,10 @@ label {
 }
 
 .terminal-input {
-    background: rgba(0, 0, 0, 0.2);
+    background: #101215;
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    color: #fff;
+    border-radius: 2px;
+    color: var(--text-muted);
     font-family: inherit;
     padding: 0.75rem;
     width: 100%;
@@ -315,9 +315,10 @@ label {
 
 .terminal-input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    background: rgba(0, 0, 0, 0.4);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    border-color: var(--steam-blue);
+    background: #000;
+    color: #fff;
+    box-shadow: none;
 }
 
 .file-custom-btn {
@@ -378,7 +379,7 @@ label {
     border: none;
     font-weight: 700;
     text-align: center;
-    cursor: pointer;
+    cursor: none;
     text-transform: uppercase;
     font-size: 0.8rem;
     transition: background-color 0.3s;
@@ -401,9 +402,9 @@ label {
 
 .hub-card {
     background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     padding: 2rem;
-    border-radius: 16px;
+    border-radius: 4px;
     text-align: center;
     border: 1px solid var(--glass-border);
     transition: all 0.3s ease;
@@ -414,13 +415,14 @@ label {
     min-height: 200px;
     flex: 1 1 200px;
     max-width: 350px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .hub-card:hover {
-    border-color: var(--accent-color);
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px -10px rgba(6, 182, 212, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(102, 192, 244, 0.2);
+    background: linear-gradient(to bottom, #2a475e 0%, #1b2838 100%);
 }
 
 .hub-icon {
@@ -447,14 +449,14 @@ label {
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.2s ease-out;
     padding: 1rem;
 }
 
 .modal-content {
-    background: rgba(30, 41, 59, 0.9);
+    background: #1b2838;
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    border-radius: 4px;
     max-width: 900px;
     width: 100%;
     position: relative;
@@ -502,7 +504,7 @@ label {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    cursor: pointer;
+    cursor: none;
     z-index: 10;
     line-height: 1;
     transition: background 0.2s;
@@ -532,7 +534,7 @@ label {
     border: none;
     color: var(--text-muted);
     font-size: 1.2rem;
-    cursor: pointer;
+    cursor: none;
     transition: color 0.3s;
     padding: 0.5rem;
 }
@@ -578,9 +580,9 @@ label {
 
 .achievement-card {
     background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 4px;
     padding: 1.5rem;
     display: flex;
     align-items: center;
@@ -588,14 +590,15 @@ label {
     transition: all 0.3s ease;
     opacity: 0.6; /* Estado Bloqueado */
     filter: grayscale(1);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .achievement-card.unlocked {
     opacity: 1;
     filter: grayscale(0);
-    border-color: var(--accent-color);
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
-    background: rgba(6, 182, 212, 0.05);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(102, 192, 244, 0.2);
+    background: linear-gradient(to right, rgba(102, 192, 244, 0.1), transparent);
 }
 
 .achievement-card.unlocked .achievement-icon {
@@ -632,7 +635,7 @@ label {
 
 /* --- ESTILOS BIBLIOTECA DE JUEGOS (TIPO STEAM) --- */
 .games-body {
-    background-color: #1b2838;
+    background-color: #171a21;
     color: #c7d5e0;
     font-family: 'Roboto', sans-serif;
 }
@@ -666,17 +669,17 @@ label {
 
 .game-card {
     display: flex;
-    background-color: #171a21;
+    background-color: #1b2838; /* Steam Card BG */
     border-radius: 4px;
     overflow: hidden;
-    cursor: pointer;
+    cursor: none;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid transparent;
+    border: 1px solid transparent; /* Borde invisible por defecto */
 }
 
 .game-card:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(102, 192, 244, 0.3);
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.3);
     border-color: #66c0f4;
 }
 
@@ -884,9 +887,9 @@ label {
 
 .bookmark-card {
     background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 4px;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -895,15 +898,16 @@ label {
     text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    cursor: pointer;
+    cursor: none;
     height: 180px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .bookmark-card:hover {
     transform: translateY(-5px);
-    border-color: var(--accent-color);
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.3);
+    background: linear-gradient(to bottom, #2a475e 0%, #1b2838 100%);
 }
 
 .bookmark-icon {
@@ -946,7 +950,7 @@ label {
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-    cursor: pointer;
+    cursor: none;
     opacity: 0;
     transition: all 0.2s;
 }
@@ -975,7 +979,7 @@ label {
     align-items: center;
     justify-content: center;
     box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5);
-    cursor: pointer;
+    cursor: none;
     transition: all 0.3s;
     z-index: 90;
 }
@@ -1024,23 +1028,23 @@ label {
 
 .story-card {
     background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none;
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 4px;
     overflow: hidden;
     margin-bottom: 2.5rem;
     transition: all 0.3s ease;
     position: relative;
     /* Borde lateral neón para destacar */
-    border-left: 4px solid var(--primary-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #66c0f4;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .story-card:hover {
     transform: translateY(-5px);
     /* Efecto Neón al pasar el mouse */
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 5px rgba(139, 92, 246, 0.5);
-    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.3);
+    border-color: #66c0f4;
 }
 
 .story-img-header {
@@ -1181,7 +1185,7 @@ label {
     color: var(--text-muted);
     padding: 0.5rem 1.5rem;
     border-radius: 50px;
-    cursor: pointer;
+    cursor: none;
     transition: all 0.3s ease;
     font-size: 0.85rem;
     text-transform: uppercase;
@@ -1247,21 +1251,22 @@ label {
 
 .story-card-v2 {
     background: var(--card-bg);
-    border-radius: 12px;
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--glass-border);
-    cursor: pointer;
+    cursor: none;
     display: flex;
     flex-direction: column;
     height: 100%;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .story-card-v2:hover {
     transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.5);
-    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.3);
+    border-color: #66c0f4;
 }
 
 .story-cover-wrapper {
@@ -1342,7 +1347,7 @@ label {
     padding: 0.5rem;
     border: none;
     border-radius: 6px;
-    cursor: pointer;
+    cursor: none;
     font-size: 0.8rem;
     font-weight: 600;
     display: flex;
@@ -1386,6 +1391,7 @@ label {
     position: absolute; top: 20px; right: 20px;
     background: rgba(255,255,255,0.1); border: none; color: #fff;
     width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    cursor: none;
     z-index: 2010; transition: 0.3s;
 }
 .reader-exit-btn:hover { background: var(--danger); transform: rotate(90deg); }
@@ -1468,7 +1474,7 @@ label {
     display: flex; justify-content: center; align-items: center;
     font-size: 1.5rem; color: #555;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
-    cursor: pointer; transition: 0.3s; z-index: 10;
+    cursor: none; transition: 0.3s; z-index: 10;
 }
 .bookmark-ribbon.active {
     background: var(--accent-color); color: #000;
@@ -1481,7 +1487,7 @@ label {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: transparent; border: none;
     font-size: 3rem; color: rgba(255,255,255,0.2);
-    cursor: pointer; transition: 0.3s;
+    cursor: none; transition: 0.3s;
     z-index: 2005;
 }
 .nav-arrow:hover { color: var(--accent-color); text-shadow: 0 0 15px var(--accent-color); transform: translateY(-50%) scale(1.1); }
@@ -1498,7 +1504,7 @@ label {
 }
 .tool-btn {
     background: none; border: none; color: var(--text-muted);
-    cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    cursor: none; font-size: 0.9rem; font-weight: 600;
     display: flex; align-items: center; gap: 5px; transition: 0.3s;
 }
 .tool-btn:hover { color: #fff; }
@@ -1550,7 +1556,7 @@ label {
     border: none;
     color: var(--text-muted);
     padding: 0.8rem 1.2rem;
-    cursor: pointer;
+    cursor: none;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     transition: all 0.3s;
@@ -1681,7 +1687,7 @@ label {
 .close-lore-btn {
     background: rgba(255,255,255,0.05); border: none; color: #fff;
     width: 40px; height: 40px; border-radius: 50%;
-    cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+    cursor: none; transition: 0.3s; display: flex; align-items: center; justify-content: center;
 }
 .close-lore-btn:hover { background: var(--danger); transform: rotate(90deg); }
 
@@ -1730,7 +1736,7 @@ label {
     position: absolute; top: 20px; left: 20px;
     background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.1);
     color: #fff; padding: 0.6rem 1.2rem;
-    border-radius: 30px; cursor: pointer; z-index: 2010;
+    border-radius: 30px; cursor: none; z-index: 2010;
     font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.85rem;
     transition: 0.3s; backdrop-filter: blur(5px);
     display: flex; align-items: center; gap: 8px;
@@ -1750,7 +1756,7 @@ label {
 .gallery-card {
     position: relative; aspect-ratio: 3/4;
     border-radius: 16px; overflow: hidden;
-    cursor: pointer;
+    cursor: none;
     box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -1784,4 +1790,55 @@ label {
 .rarity-select {
     background: rgba(0,0,0,0.3); color: #fff; border: 1px solid #444;
     padding: 0.5rem; border-radius: 4px; width: 100px;
+}
+
+/* --- SANCHEZCABRON OS IDENTITY --- */
+.perfil-system {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(102, 192, 244, 0.1);
+    border: 1px solid rgba(102, 192, 244, 0.3);
+    color: #66c0f4; /* Steam Blue */
+    box-shadow: 0 0 5px rgba(102, 192, 244, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.perfil-system:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.4);
+    border-color: #66c0f4;
+    background: rgba(102, 192, 244, 0.2);
+}
+
+.perfil-system i {
+    filter: drop-shadow(0 0 2px rgba(102, 192, 244, 0.8));
+}
+
+/* --- CUSTOM CURSOR (STEAM STYLE) --- */
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #66c0f4; /* Steam Blue */
+    background: rgba(102, 192, 244, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate3d(var(--mouse-x, 0), var(--mouse-y, 0), 0) translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 0 10px rgba(102, 192, 244, 0.5);
+    will-change: transform;
+}
+
+.custom-cursor.hover-active {
+    width: 40px;
+    height: 40px;
+    border-color: #5c7e10; /* Steam Green */
+    background: rgba(92, 126, 16, 0.2);
+    box-shadow: 0 0 15px rgba(92, 126, 16, 0.6);
 }

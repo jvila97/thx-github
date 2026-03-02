@@ -41,9 +41,9 @@ addAch('games_metacritic_90', 'Obra Maestra', 'Añade un juego con 90 o más de 
 addAch('games_backlog_10', 'Backlog Infinito', 'Ten 10 juegos en estado "Pendiente".', 'fa-solid fa-layer-group', 'games');
 for(let i=52; i<=70; i++) addAch(`games_gen_${i}`, `Jugador ${i}`, `Añade ${i-45} juegos a la biblioteca.`, 'fa-solid fa-chess-board', 'games');
 
-// Categoría 4: Bóveda/Ana (71-85)
+// Categoría 4: Bóveda (71-85)
 addAch('vault_enter', 'El Elegido', 'Entra en la bóveda correctamente.', 'fa-solid fa-unlock', 'vault');
-addAch('vault_romantic', 'Romántico', 'Escucha 5 canciones en la página de Ana.', 'fa-solid fa-music', 'vault');
+addAch('vault_romantic', 'Romántico', 'Escucha 5 canciones en la Playlist.', 'fa-solid fa-music', 'vault');
 addAch('vault_fail_3', 'Persistente', 'Falla el código de la bóveda 3 veces.', 'fa-solid fa-user-shield', 'vault');
 addAch('vault_confetti', 'Fiesta', 'Lanza confeti en la página secreta.', 'fa-solid fa-party-horn', 'vault');
 for(let i=75; i<=85; i++) addAch(`vault_gen_${i}`, `Guardián ${i}`, `Visita la bóveda ${i-70} veces.`, 'fa-solid fa-shield-halved', 'vault');
@@ -158,6 +158,43 @@ function renderAchievements() {
 
 document.addEventListener('DOMContentLoaded', () => {
     renderAchievements();
+    
+    // --- CUSTOM CURSOR LOGIC ---
+    const cursor = document.createElement('div');
+    cursor.classList.add('custom-cursor');
+    document.body.appendChild(cursor);
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function updateCursor() {
+        cursor.style.setProperty('--mouse-x', mouseX + 'px');
+        cursor.style.setProperty('--mouse-y', mouseY + 'px');
+        requestAnimationFrame(updateCursor);
+    }
+    requestAnimationFrame(updateCursor);
+
+    // Detectar elementos interactivos para efecto hover
+    const interactiveSelectors = 'a, button, .btn, input, textarea, select, .card, .story-card, .game-card, .nav-item, .song-row, .key, .bookmark-card, .gallery-card, .story-card-v2, .floating-btn, .close-modal-btn';
+    
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.matches(interactiveSelectors) || e.target.closest(interactiveSelectors)) {
+            cursor.classList.add('hover-active');
+        }
+    });
+    
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.matches(interactiveSelectors) || e.target.closest(interactiveSelectors)) {
+            cursor.classList.remove('hover-active');
+        }
+    });
+    // ---------------------------
+
     desbloquearLogro('web_login');
 
     // Tracker de Hora (Explorador Nocturno)
