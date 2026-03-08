@@ -166,21 +166,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let mouseX = 0;
     let mouseY = 0;
+    let isHoveringModal = false;
 
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-    });
+        // Option A: Detect if hovering over a modal/overlay to disable custom cursor
+        isHoveringModal = !!e.target.closest('.modal-overlay, .drawer, .reader-overlay, .reader-lore-overlay');
+    }, { passive: true }); // Option B: Passive listener for performance
 
     function updateCursor() {
         cursor.style.setProperty('--mouse-x', mouseX + 'px');
         cursor.style.setProperty('--mouse-y', mouseY + 'px');
+        
+        if (isHoveringModal) cursor.classList.add('hidden');
+        else cursor.classList.remove('hidden');
+
         requestAnimationFrame(updateCursor);
     }
     requestAnimationFrame(updateCursor);
 
     // Detectar elementos interactivos para efecto hover
-    const interactiveSelectors = 'a, button, .btn, input, textarea, select, .card, .story-card, .game-card, .nav-item, .song-row, .key, .bookmark-card, .gallery-card, .story-card-v2, .floating-btn, .close-modal-btn';
+    const interactiveSelectors = 'a, button, .btn, input, textarea, select, label, .card, .story-card, .game-card, .nav-item, .song-row, .key, .bookmark-card, .gallery-card, .story-card-v2, .floating-btn, .close-modal-btn, .hub-card, .filter-btn, .action-btn, .nav a';
     
     document.addEventListener('mouseover', (e) => {
         if (e.target.matches(interactiveSelectors) || e.target.closest(interactiveSelectors)) {

@@ -3,56 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Página Personal</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>SanchezCabron OS v1.0</title>
+
+    <!-- Meta SEO y Social -->
+    <meta name="description" content="SanchezCabron OS: Tu centro de comando personal para gestionar entretenimiento, proyectos y datos en un entorno unificado.">
+    <meta property="og:title" content="SanchezCabron OS v1.0">
+    <meta property="og:description" content="Tu centro de comando personal para gestionar entretenimiento, proyectos y datos.">
+    <!-- NOTA: Reemplaza esta imagen con una URL real a una imagen de 1200x630px para tu sitio -->
+    <meta property="og:image" content="https://sanchezcabron.com/assets/img/og-image.png">
+    <meta property="og:url" content="https://sanchezcabron.com">
+    <meta property="og:type" content="website">
+
+    <!-- Optimization: Preconnect to external domains to speed up font and icon loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Main stylesheet, loaded synchronously to prevent Flash of Unstyled Content (FOUC) -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Optimization: Load fonts and icons asynchronously so they don't block rendering.
+         The 'media="print"' trick loads them with low priority. 'onload' applies them once loaded. -->
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+
+    <!-- UX Enhancement: Inline CSS for the loading screen to ensure it appears instantly -->
+    <style>
+        #loader-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #171a21; /* Matches site's --bg-color */
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+        .loader-spinner {
+            width: 60px; height: 60px;
+            border: 3px solid rgba(102, 192, 244, 0.1);
+            border-top-color: #66c0f4; /* Steam Blue */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px rgba(102, 192, 244, 0.2);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loader-wrapper.fade-out { opacity: 0; }
+    </style>
 </head>
 <body>
+    <!-- UX Enhancement: Loading screen element -->
+    <div id="loader-wrapper"><div class="loader-spinner"></div></div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo">SanchezCabron OS</div>
-            <nav class="nav">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+            <!-- Redesign: Navbar with dropdowns for better organization -->
+            <nav class="nav" id="mainNav">
                 <a href="index.html" class="active">Inicio</a>
-                <a href="series.html">Series</a>
-                <a href="juegos.html">Juegos</a>
-                <a href="historias.html">Historias</a>
-                <a href="logros.html"> Logros</a>
-                <a href="marcadores.html">Links</a>
-                <a href="perfil.html">Perfil</a>
-                <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Entretenimiento <i class="fa-solid fa-caret-down fa-xs"></i></button>
+                    <div class="dropdown-content">
+                        <a href="pages/series.html">Series & Anime</a>
+                        <a href="pages/juegos.html">Videojuegos</a>
+                        <a href="pages/playlist.html">Playlist</a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Personal <i class="fa-solid fa-caret-down fa-xs"></i></button>
+                    <div class="dropdown-content">
+                        <a href="pages/historias.html">Historias</a>
+                        <a href="pages/logros.html">Logros</a>
+                        <a href="pages/perfil.html">Perfil</a>
+                    </div>
+                </div>
+
+                <a href="pages/marcadores.html">Links</a>
+                <a href="pages/vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
             </nav>
         </div>
+        <!-- Visual Accent: Animated Gradient Line -->
+        <div class="gradient-line"></div>
     </header>
 
     <main class="container section">
-        <div style="text-align: center; margin-top: 2rem;">
-            <h1>Bienvenido al Sistema</h1>
-            <p style="color: #888;">Selecciona un módulo para comenzar</p>
-        </div>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Bienvenido al Sistema Operativo</h1>
+            <p>Tu centro de comando personal. Gestiona entretenimiento, proyectos y datos en un entorno unificado estilo OS.</p>
+            <a href="#modules" class="btn hero-btn">Explorar Módulos</a>
+        </section>
 
-        <div class="hub-grid">
-            <a href="series.html" class="hub-card">
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="about-content">
+                <h2><i class="fa-solid fa-circle-info"></i> ¿Qué es este lugar?</h2>
+                <p>SanchezCabron OS es un sistema personal creado para mi uso privado. Es mi rincón para llevar un registro organizado y centralizado de todo lo que consumo o quiero rastrear: animes, series, juegos, playlists de música, historias personales y más. El tono es genuino y personal porque, bueno, es mi propio espacio.</p>
+                
+                <h3>¿Cómo funciona?</h3>
+                <p>Cada módulo en el panel es una sección independiente donde puedes añadir, editar y consultar tus listas personales. Todo se almacena localmente en tu navegador, funcionando como un "sistema operativo" privado para tu propio contenido.</p>
+            </div>
+
+            <div class="module-guide">
+                <h2><i class="fa-solid fa-book-atlas"></i> Guía de Módulos</h2>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-tv"></i></div>
+                        <div class="guide-text">
+                            <h4>Series & Anime</h4>
+                            <p>Registra lo que estás viendo, has visto o quieres ver.</p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-music"></i></div>
+                        <div class="guide-text">
+                            <h4>Playlist</h4>
+                            <p>Guarda tus canciones y música favorita.</p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-gamepad"></i></div>
+                        <div class="guide-text">
+                            <h4>Videojuegos</h4>
+                            <p>Cataloga tu biblioteca de juegos con estado y puntuaciones.</p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="guide-text">
+                            <h4>Historias</h4>
+                            <p>Almacena tus historias personales y escritos creativos.</p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-trophy"></i></div>
+                        <div class="guide-text">
+                            <h4>Logros</h4>
+                            <p>Registra tus logros y metas personales alcanzadas.</p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-link"></i></div>
+                        <div class="guide-text">
+                            <h4>Marcadores</h4>
+                            <p>Guarda enlaces y referencias útiles.</p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon"><i class="fa-solid fa-user-astronaut"></i></div>
+                        <div class="guide-text">
+                            <h4>Mi Perfil</h4>
+                            <p>Tu perfil personal y estadísticas del sistema.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="modules" class="hub-grid">
+            <a href="pages/series.html" class="hub-card">
                 <div class="hub-icon"><i class="fa-solid fa-tv"></i></div>
                 <div class="hub-title">Series & Anime</div>
             </a>
-            <a href="playlist.html" class="hub-card">
+            <a href="pages/playlist.html" class="hub-card">
                 <div class="hub-icon"><i class="fa-solid fa-music"></i></div>
                 <div class="hub-title">Playlist</div>
             </a>
-            <a href="juegos.html" class="hub-card">
+            <a href="pages/juegos.html" class="hub-card">
                 <div class="hub-icon"><i class="fa-solid fa-gamepad"></i></div>
                 <div class="hub-title">Videojuegos</div>
             </a>
-            <a href="historias.html" class="hub-card">
+            <a href="pages/historias.html" class="hub-card">
                 <div class="hub-icon"><i class="fa-solid fa-book-open"></i></div>
                 <div class="hub-title">Historias</div>
             </a>
-            <a href="marcadores.html" class="hub-card">
+            <a href="pages/marcadores.html" class="hub-card">
                 <div class="hub-icon"><i class="fa-solid fa-link"></i></div>
                 <div class="hub-title">Marcadores</div>
             </a>
-            <a href="perfil.html" class="hub-card">
+            <a href="pages/perfil.html" class="hub-card">
                 <div class="hub-icon"><i class="fa-solid fa-user-astronaut"></i></div>
                 <div class="hub-title">Mi Perfil</div>
             </a>
@@ -61,14 +197,101 @@
 
     <footer class="footer">
         <div class="container">
-            <p>Sistema Personal v3.0 - Arquitectura MPA</p>
+            <div class="footer-content">
+                <p class="footer-text">&copy; 2026 SanchezCabron OS. Todos los derechos reservados.<br><span class="version-stamp">v1.0 - Primera versión oficial (08/03/2026)</span></p>
+                <div class="social-links">
+                    <a href="javascript:void(0);" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="javascript:void(0);" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="javascript:void(0);" title="Discord"><i class="fa-brands fa-discord"></i></a>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <!-- Optimization: 'defer' attribute downloads scripts in parallel and executes them after the page has parsed. -->
+    <script src="js/logros.js" defer></script>
+    <script src="js/script.js" defer></script>
+
+    <!-- UX Enhancement: Script to handle the loading screen fade-out -->
     <script>
-        console.log('Sistema: El primer dígito es 4');
+        // Function to hide and remove the loader
+        function hideLoader() {
+            const loader = document.getElementById('loader-wrapper');
+            // Check if loader exists and hasn't been triggered yet
+            if (loader && !loader.classList.contains('fade-out')) {
+                loader.classList.add('fade-out');
+                // Performance: Remove the loader from the DOM after the fade-out animation completes
+                loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+                // Safety: Ensure removal even if transitionend fails (e.g. tab backgrounded)
+                setTimeout(() => { if(loader.parentNode) loader.remove(); }, 700);
+            }
+        }
+
+        // 1. Normal behavior: Wait for load event
+        window.addEventListener('load', hideLoader);
+
+        // 2. Fallback: Force hide after 3 seconds (max wait time)
+        setTimeout(hideLoader, 3000);
+
+        // Navbar Scroll Effect (Shrink & Blur)
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            document.getElementById('mainNav').classList.toggle('active');
+        }
+
+        // Redesign: Staggered card animation on load for a dynamic feel.
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.hub-card');
+            // A short delay to let the page settle before animating
+            setTimeout(() => {
+                cards.forEach((card, index) => {
+                    setTimeout(() => card.classList.add('visible'), 100 * index);
+                });
+            }, 200);
+
+            // --- Dropdown Menu Logic (Fix Hover Gap) ---
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                let hideTimeout;
+                const content = dropdown.querySelector('.dropdown-content');
+
+                dropdown.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    // Close other open dropdowns for a clean UX
+                    document.querySelectorAll('.dropdown-content.show').forEach(openDropdown => {
+                        if (openDropdown !== content) {
+                            openDropdown.classList.remove('show');
+                            openDropdown.parentElement.classList.remove('active');
+                        }
+                    });
+                    content.classList.add('show');
+                    dropdown.classList.add('active');
+                });
+
+                dropdown.addEventListener('mouseleave', () => {
+                    // Use a timeout to create a delay, allowing the cursor to bridge the gap
+                    hideTimeout = setTimeout(() => {
+                        content.classList.remove('show');
+                        dropdown.classList.remove('active');
+                    }, 200);
+                });
+            });
+
+            // Click outside to close any open dropdowns
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-content.show').forEach(openDropdown => {
+                        openDropdown.classList.remove('show');
+                        openDropdown.parentElement.classList.remove('active');
+                    });
+                }
+            });
+        });
     </script>
-    <script src="logros.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>

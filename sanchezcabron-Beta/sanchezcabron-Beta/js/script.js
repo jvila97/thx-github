@@ -30,6 +30,17 @@ function loadData() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
         seriesData = JSON.parse(stored);
+        // Data migration for image paths from old 'img/' structure
+        let needsSave = false;
+        seriesData.forEach(serie => {
+            if (serie.cover && serie.cover.startsWith('img/')) {
+                serie.cover = `../assets/${serie.cover}`; // e.g., 'img/portadas/file.jpg' -> '../assets/img/portadas/file.jpg'
+                needsSave = true;
+            }
+        });
+        if (needsSave) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(seriesData));
+        }
     }
 }
 
@@ -74,7 +85,7 @@ const app = {
         // 1. Si hay nombre manual, usa ese (asumiendo que está en img/portadas/)
         // 2. Si no, genera nombre automático basado en el título
         const imageName = manualFile ? manualFile : app.formatFileName(title);
-        const coverPath = `img/portadas/${imageName}`;
+        const coverPath = `../assets/img/portadas/${imageName}`;
 
         // Calcular horas totales
         const totalHours = ((caps * duration) / 60).toFixed(1);
@@ -245,10 +256,15 @@ const app = {
     render: () => {
         const grid = document.getElementById('seriesGrid');
         const counter = document.getElementById('total-counter');
+        const hoursCounter = document.getElementById('total-hours');
         const statusCounters = document.getElementById('statusCounters');
         
         counter.textContent = `${seriesData.length} series`;
         grid.innerHTML = '';
+
+        // Calcular horas totales dinámicamente
+        const totalHoursSum = seriesData.reduce((sum, serie) => sum + parseFloat(serie.totalHours), 0);
+        if (hoursCounter) hoursCounter.textContent = `${totalHoursSum.toFixed(1)}h Estimadas`;
 
         // Calcular contadores
         const stats = { visto: 0, viendo: 0, simulcast: 0, abandonado: 0 };

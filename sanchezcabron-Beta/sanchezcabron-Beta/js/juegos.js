@@ -15,8 +15,6 @@ let editingGameId = null;
 const dom = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Sistema de Juegos Iniciado: Modo "Zero Errors" activado.');
-    
     // 1. Asignación de Elementos
     dom.grid = document.getElementById('gamesGrid');
     dom.modal = document.getElementById('formModal');
@@ -36,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Carga Inicial
     cargarJuegos();
-    console.log('🔧 Estableciendo event listeners...');
     setupEventListeners();
     renderizarJuegos();
 });
@@ -46,7 +43,19 @@ function cargarJuegos() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             gamesData = JSON.parse(stored);
-            console.log(`✅ Datos cargados: ${gamesData.length} juegos.`);
+
+            // Data migration for image paths from old 'img/' structure
+            let needsSave = false;
+            gamesData.forEach(game => {
+                if (game.cover && game.cover.startsWith('img/')) {
+                    game.cover = `../assets/${game.cover}`; // e.g., 'img/juegos/file.jpg' -> '../assets/img/juegos/file.jpg'
+                    needsSave = true;
+                }
+            });
+            if (needsSave) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(gamesData));
+            }
+
         }
     } catch (e) {
         console.error('❌ Error crítico leyendo localStorage:', e);
@@ -94,7 +103,6 @@ function setupEventListeners() {
 function guardarJuego(e) {
     // 1. Prevenir recarga
     e.preventDefault();
-    console.log('💾 Iniciando proceso de guardado...');
 
     // 2. Captura de datos
     const formData = new FormData(dom.form);
@@ -104,7 +112,6 @@ function guardarJuego(e) {
     
     // 3. Validación Estricta
     if (!name || metacritic === '') {
-        console.warn('⚠️ Validación fallida: Faltan campos.');
         if(dom.errorMsg) {
             dom.errorMsg.textContent = "❌ Error: El nombre y la puntuación Metacritic son obligatorios.";
             dom.errorMsg.style.display = 'block';
@@ -118,7 +125,7 @@ function guardarJuego(e) {
         // Si es URL o DataURI, se deja igual. Si es solo nombre, se asume local.
         finalCover = (rawCover.startsWith('http') || rawCover.startsWith('data:')) 
             ? rawCover 
-            : `img/juegos/${rawCover}`;
+            : `../assets/img/juegos/${rawCover}`;
     }
 
     const gameData = {
@@ -139,15 +146,12 @@ function guardarJuego(e) {
             // Mantener portada anterior si no se especifica una nueva
             if (!gameData.cover) gameData.cover = gamesData[index].cover;
             gamesData[index] = gameData;
-            console.log('✏️ Juego editado:', gameData.name);
         }
     } else {
         gamesData.push(gameData);
-        console.log('➕ Nuevo juego añadido:', gameData.name);
     }
     
     // 6. Persistencia y Limpieza
-    console.log('💾 Persistiendo datos en localStorage...');
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gamesData));
     renderizarJuegos();
     closeModal(); // Esto resetea el formulario también
@@ -158,7 +162,6 @@ function guardarJuego(e) {
 
 function renderizarJuegos() {
     if (!dom.grid) return;
-    console.log('🎨 Renderizando juegos...');
 
     let gamesToRender = [...gamesData];
 
@@ -213,7 +216,6 @@ function renderizarJuegos() {
 // --- Gestión del Modal ---
 
 function openModal(gameId = null) {
-    console.log(`📬 Abriendo modal. ID de juego para editar: ${gameId || 'ninguno (nuevo juego)'}`);
     dom.form.reset();
     if (dom.errorMsg) dom.errorMsg.style.display = 'none';
     updateMetacriticColor();
@@ -228,7 +230,7 @@ function openModal(gameId = null) {
             
             // Limpiar ruta para mostrar solo nombre si es local
             let cleanCover = game.cover || '';
-            if (cleanCover.startsWith('img/juegos/')) cleanCover = cleanCover.replace('img/juegos/', '');
+            if (cleanCover.startsWith('../assets/img/juegos/')) cleanCover = cleanCover.replace('../assets/img/juegos/', '');
             document.getElementById('coverInput').value = cleanCover;
             
             document.getElementById('metacriticInput').value = game.metacritic;
@@ -248,7 +250,6 @@ function openModal(gameId = null) {
 }
 
 function closeModal() {
-    console.log('📪 Cerrando y reseteando modal.');
     dom.modal.style.display = 'none';
     dom.form.reset();
     editingGameId = null;
@@ -257,7 +258,6 @@ function closeModal() {
 // --- Drawer de Detalles ---
 
 function openDrawer(gameId) {
-    console.log(`📖 Abriendo drawer de detalles para el juego ID: ${gameId}`);
     const game = gamesData.find(g => g.id === gameId);
     if (!game) return;
 

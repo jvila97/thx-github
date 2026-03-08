@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logros - SanchezCabron OS</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Achievements</div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+            <nav class="nav">
+                <a href="../index.html">Inicio</a>
+                <div class="dropdown">
+                    <button class="dropbtn">Entretenimiento <i class="fa-solid fa-caret-down fa-xs"></i></button>
+                    <div class="dropdown-content">
+                        <a href="series.html">Series & Anime</a>
+                        <a href="juegos.html">Videojuegos</a>
+                        <a href="playlist.html">Playlist</a>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="dropbtn active">Personal <i class="fa-solid fa-caret-down fa-xs"></i></button>
+                    <div class="dropdown-content">
+                        <a href="historias.html">Historias</a>
+                        <a href="logros.html">Logros</a>
+                        <a href="perfil.html">Perfil</a>
+                    </div>
+                </div>
+                <a href="marcadores.html">Links</a>
+                <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h1><i class="fa-solid fa-trophy" style="color: var(--accent-color);"></i> Sala de Trofeos</h1>
+            <p>Desbloquea medallas explorando y usando el sistema.</p>
+        </div>
+
+        <div id="achievementsGrid" class="achievements-grid">
+            <!-- Se llenará con JS -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container"><p>Sistema de Gamificación v1.0</p></div>
+    </footer>
+
+    <script src="../js/logros.js"></script>
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav').classList.toggle('active');
+        }
+
+        // --- Dropdown Menu Logic (Fix Hover Gap) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                let hideTimeout;
+                const content = dropdown.querySelector('.dropdown-content');
+
+                dropdown.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    document.querySelectorAll('.dropdown-content.show').forEach(openDropdown => {
+                        if (openDropdown !== content) {
+                            openDropdown.classList.remove('show');
+                            openDropdown.parentElement.classList.remove('active');
+                        }
+                    });
+                    content.classList.add('show');
+                    dropdown.classList.add('active');
+                });
+
+                dropdown.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        content.classList.remove('show');
+                        dropdown.classList.remove('active');
+                    }, 200);
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-content.show').forEach(openDropdown => {
+                        openDropdown.classList.remove('show');
+                        openDropdown.parentElement.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

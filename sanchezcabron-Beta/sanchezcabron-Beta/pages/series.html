@@ -4,20 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Series - SanchezCabron OS</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="logo">Series Manager</div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
             <nav class="nav">
-                <a href="index.html">Inicio</a>
-                <a href="series.html" class="active">Series</a>
-                <a href="juegos.html">Juegos</a>
-                <a href="logros.html"> Logros</a>
+                <a href="../index.html">Inicio</a>
+                <div class="dropdown">
+                    <button class="dropbtn active">Entretenimiento <i class="fa-solid fa-caret-down fa-xs"></i></button>
+                    <div class="dropdown-content">
+                        <a href="series.html">Series & Anime</a>
+                        <a href="juegos.html">Videojuegos</a>
+                        <a href="playlist.html">Playlist</a>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="dropbtn">Personal <i class="fa-solid fa-caret-down fa-xs"></i></button>
+                    <div class="dropdown-content">
+                        <a href="historias.html">Historias</a>
+                        <a href="logros.html">Logros</a>
+                        <a href="perfil.html">Perfil</a>
+                    </div>
+                </div>
                 <a href="marcadores.html">Links</a>
-                <a href="perfil.html">Perfil</a>
                 <a href="vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
             </nav>
         </div>
@@ -35,7 +48,7 @@
             <div class="header-actions">
                 <h2>Mi Colección</h2>
                 <span id="total-counter" class="highlight">0 series</span>
-                <span class="highlight" style="margin-left: 1rem; font-size: 0.9rem;">142h Estimadas</span>
+                <span id="total-hours" class="highlight" style="margin-left: 1rem; font-size: 0.9rem;">0h Estimadas</span>
                 <div id="statusCounters" class="status-counters"></div>
             </div>
             <div id="seriesGrid" class="series-grid"></div>
@@ -134,7 +147,48 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
-    <script src="logros.js"></script>
-    <script src="script.js"></script>
+    <script src="../js/logros.js"></script>
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav').classList.toggle('active');
+        }
+
+        // --- Dropdown Menu Logic (Fix Hover Gap) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                let hideTimeout;
+                const content = dropdown.querySelector('.dropdown-content');
+
+                dropdown.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    document.querySelectorAll('.dropdown-content.show').forEach(openDropdown => {
+                        if (openDropdown !== content) {
+                            openDropdown.classList.remove('show');
+                            openDropdown.parentElement.classList.remove('active');
+                        }
+                    });
+                    content.classList.add('show');
+                    dropdown.classList.add('active');
+                });
+
+                dropdown.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        content.classList.remove('show');
+                        dropdown.classList.remove('active');
+                    }, 200);
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-content.show').forEach(openDropdown => {
+                        openDropdown.classList.remove('show');
+                        openDropdown.parentElement.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+    <script src="../js/script.js"></script>
 </body>
 </html>

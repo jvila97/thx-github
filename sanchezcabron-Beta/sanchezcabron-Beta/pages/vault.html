@@ -88,7 +88,7 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate3d(var(--mouse-x, 0), var(--mouse-y, 0), 0) translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
+            transition: width 0.1s, height 0.1s, background-color 0.1s, border-color 0.1s;
             backdrop-filter: blur(2px);
             box-shadow: 0 0 10px rgba(102, 192, 244, 0.5);
             will-change: transform;
@@ -154,7 +154,7 @@
                 // Efecto Fade-out
                 document.body.style.transition = "opacity 0.8s ease";
                 document.body.style.opacity = "0";
-                setTimeout(() => window.location.href = 'secreto.html', 800);
+                setTimeout(() => window.location.href = '../index.html', 800);
             } else {
                 setTimeout(() => {
                     vault.classList.add('shake');

@@ -12,7 +12,6 @@ let currentChapterIndex = 0; // Índice del capítulo actual en lectura
 
 const app = {
     init: () => {
-        console.log('📖 Motor de Historias Iniciado');
         app.loadStories();
         app.setupEventListeners();
         app.renderLibrary();
@@ -22,6 +21,29 @@ const app = {
         const stored = localStorage.getItem(STORIES_KEY);
         if (stored) {
             stories = JSON.parse(stored);
+
+            // Data migration for image paths from old 'img/' structure
+            let needsSave = false;
+            stories.forEach(story => {
+                // Fix main cover
+                if (story.cover && story.cover.startsWith('img/')) {
+                    story.cover = `../assets/${story.cover}`; // 'img/historias/file.jpg' -> '../assets/img/historias/file.jpg'
+                    needsSave = true;
+                }
+                // Fix album images inside lore
+                if (story.lore && story.lore.album) {
+                    story.lore.album.forEach(albumEntry => {
+                        if (albumEntry.url && albumEntry.url.startsWith('img/')) {
+                            albumEntry.url = `../assets/${albumEntry.url}`; // 'img/historias/album/file.png' -> '../assets/img/historias/album/file.png'
+                            needsSave = true;
+                        }
+                    });
+                }
+            });
+
+            if (needsSave) {
+                localStorage.setItem(STORIES_KEY, JSON.stringify(stories));
+            }
         }
     },
 
@@ -66,7 +88,7 @@ const app = {
         // Procesar imagen (si es local o URL)
         let cover = coverInput;
         if (coverInput && !coverInput.startsWith('http') && !coverInput.startsWith('data:')) {
-            cover = `img/historias/${coverInput}`;
+            cover = `../assets/img/historias/${coverInput}`;
         }
 
         const newStory = {
@@ -488,10 +510,12 @@ const app = {
         albumGrid.innerHTML = '';
         if (story.lore.album && story.lore.album.length > 0) {
             story.lore.album.forEach(ent => {
-                // Procesar ruta de imagen: si es solo nombre, buscar en img/historias/album/
+                // Procesar ruta de imagen. After migration, paths should be correct.
+                // This logic is a fallback for bare filenames.
                 let imageSrc = ent.url;
-                if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:') && !imageSrc.startsWith('img/')) {
-                    imageSrc = `img/historias/album/${imageSrc}`;
+                if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:') && !imageSrc.includes('/')) {
+                    // Only prepend path if it's a simple filename like "m1.png"
+                    imageSrc = `../assets/img/historias/album/${imageSrc}`;
                 }
 
                 const card = document.createElement('div');

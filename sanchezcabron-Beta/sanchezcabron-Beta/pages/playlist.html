@@ -444,7 +444,7 @@
             document.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
-            }, { passive: true });
+            });
             
             function update() {
                 cursor.style.setProperty('--mouse-x', mouseX + 'px');
