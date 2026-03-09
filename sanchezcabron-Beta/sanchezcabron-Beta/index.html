@@ -88,6 +88,11 @@
                 <a href="pages/marcadores.html">Links</a>
                 <a href="pages/vault.html" title="Acceso Privado"><i class="fa-solid fa-lock"></i></a>
             </nav>
+            <!-- Global Search -->
+            <div class="search-container" id="searchContainer">
+                <button class="search-icon-btn" id="searchIconBtn" title="Buscar (/)"><i class="fa-solid fa-search"></i></button>
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar en todo el sistema...">
+            </div>
         </div>
         <!-- Visual Accent: Animated Gradient Line -->
         <div class="gradient-line"></div>
@@ -95,10 +100,49 @@
 
     <main class="container section">
         <!-- Hero Section -->
+        <!-- Search Results Dropdown -->
+        <div class="search-results-dropdown" id="searchResults">
+            <!-- Results will be injected here by JS -->
+        </div>
+
         <section class="hero">
             <h1>Bienvenido al Sistema Operativo</h1>
             <p>Tu centro de comando personal. Gestiona entretenimiento, proyectos y datos en un entorno unificado estilo OS.</p>
             <a href="#modules" class="btn hero-btn">Explorar Módulos</a>
+        </section>
+
+        <!-- Stats Dashboard Section -->
+        <section class="stats-section">
+            <div class="stat-card" id="stat-games">
+                <div class="stat-icon"><i class="fa-solid fa-gamepad"></i></div>
+                <div class="stat-value" data-target="0">0</div>
+                <div class="stat-label">Juegos</div>
+            </div>
+            <div class="stat-card" id="stat-series">
+                <div class="stat-icon"><i class="fa-solid fa-tv"></i></div>
+                <div class="stat-value" data-target="0">0</div>
+                <div class="stat-label">Series y Anime</div>
+            </div>
+            <div class="stat-card" id="stat-playlist">
+                <div class="stat-icon"><i class="fa-solid fa-music"></i></div>
+                <div class="stat-value" data-target="0">0</div>
+                <div class="stat-label">Canciones</div>
+            </div>
+            <div class="stat-card" id="stat-stories">
+                <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div class="stat-value" data-target="0">0</div>
+                <div class="stat-label">Historias</div>
+            </div>
+            <div class="stat-card" id="stat-achievements">
+                <div class="stat-icon"><i class="fa-solid fa-trophy"></i></div>
+                <div class="stat-value" data-target="0">0</div>
+                <div class="stat-label">Logros</div>
+            </div>
+            <div class="stat-card" id="stat-bookmarks">
+                <div class="stat-icon"><i class="fa-solid fa-link"></i></div>
+                <div class="stat-value" data-target="0">0</div>
+                <div class="stat-label">Marcadores</div>
+            </div>
         </section>
 
         <!-- About Section -->
@@ -255,6 +299,12 @@
                 });
             }, 200);
 
+            // --- Stats Dashboard Logic ---
+            loadAndAnimateStats();
+
+            // --- Global Search Logic ---
+            initGlobalSearch();
+
             // --- Dropdown Menu Logic (Fix Hover Gap) ---
             document.querySelectorAll('.dropdown').forEach(dropdown => {
                 let hideTimeout;
@@ -292,6 +342,270 @@
                 }
             });
         });
+
+        /**
+         * Fetches data from localStorage for each module and triggers the count-up animation.
+         */
+        function loadAndAnimateStats() {
+            // Helper to safely get array length from localStorage
+            const getCount = (key) => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || '[]');
+                    return Array.isArray(data) ? data.length : 0;
+                } catch (e) {
+                    console.error(`Error reading stat key ${key}:`, e);
+                    return 0;
+                }
+            };
+
+            // Define stat cards with their respective localStorage keys
+            const stats = [
+                { id: 'stat-games', key: 'mis_juegos_db' },
+                { id: 'stat-series', key: 'my_series_data_v1' },
+                // NOTE: The key 'playlist_db' is an assumption. Update if the actual key is different.
+                { id: 'stat-playlist', key: 'playlist_db' },
+                { id: 'stat-stories', key: 'sanchez_stories_v2' },
+                { id: 'stat-achievements', key: 'sanchez_logros_v1' },
+                { id: 'stat-bookmarks', key: 'sanchez_bookmarks_db' }
+            ];
+
+            // Update the target value for each stat card
+            stats.forEach(stat => {
+                const count = getCount(stat.key);
+                const card = document.getElementById(stat.id);
+                if (card) {
+                    const valueEl = card.querySelector('.stat-value');
+                    if (valueEl) {
+                        valueEl.setAttribute('data-target', count);
+                    }
+                }
+            });
+
+            // Start the count-up animation for all stat values
+            animateCounters();
+        }
+
+        /**
+         * Animates numbers from 0 to their target value using requestAnimationFrame for a smooth effect.
+         */
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-value');
+            const animationDuration = 1500; // Animation duration in milliseconds
+
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const startTime = Date.now();
+
+                const updateCount = () => {
+                    const elapsedTime = Date.now() - startTime;
+                    const progress = Math.min(elapsedTime / animationDuration, 1);
+                    const currentValue = Math.floor(progress * target);
+
+                    counter.innerText = currentValue;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        counter.innerText = target; // Ensure it ends on the exact target
+                    }
+                };
+                
+                requestAnimationFrame(updateCount);
+            });
+        }
+
+        /**
+         * ==================================
+         * GLOBAL SEARCH SYSTEM
+         * ==================================
+         */
+        function initGlobalSearch() {
+            const searchContainer = document.getElementById('searchContainer');
+            const searchIconBtn = document.getElementById('searchIconBtn');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+
+            // --- Event Listeners ---
+
+            // Toggle search bar on icon click
+            searchIconBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSearch();
+            });
+
+            // Perform search on input
+            searchInput.addEventListener('input', handleSearch);
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/') {
+                    e.preventDefault();
+                    toggleSearch(true);
+                }
+                if (e.key === 'Escape') {
+                    toggleSearch(false);
+                }
+            });
+
+            // Close on outside click
+            document.addEventListener('click', (e) => {
+                if (!searchContainer.contains(e.target)) {
+                    toggleSearch(false);
+                }
+            });
+
+            // Prevent closing when clicking inside results
+            searchResults.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        function toggleSearch(forceState) {
+            const searchContainer = document.getElementById('searchContainer');
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const shouldOpen = forceState !== undefined ? forceState : !searchContainer.classList.contains('active');
+
+            if (shouldOpen) {
+                searchContainer.classList.add('active');
+                searchInput.focus();
+                handleSearch({ target: searchInput }); // Show recents on open
+            } else {
+                searchContainer.classList.remove('active');
+                searchResults.classList.remove('show');
+                searchInput.value = '';
+            }
+        }
+
+        // Debounce search to avoid firing on every keystroke
+        let searchTimeout;
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const searchResults = document.getElementById('searchResults');
+            
+            searchResults.classList.add('show');
+            searchResults.innerHTML = `<div class="search-state"><i class="fa-solid fa-spinner fa-spin"></i> Buscando...</div>`;
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (query.length === 0) {
+                    renderResults(getRecentItems(), "Últimos Elementos Añadidos");
+                    return;
+                }
+                
+                const results = performSearch(query);
+                renderResults(results);
+            }, 250);
+        }
+
+        function performSearch(query) {
+            const sources = [
+                { key: 'mis_juegos_db', category: 'Juegos', icon: 'fa-solid fa-gamepad', field: 'name', url: item => `pages/juegos.html?gameId=${item.id}` },
+                { key: 'my_series_data_v1', category: 'Series y Anime', icon: 'fa-solid fa-tv', field: 'title', url: item => `pages/series.html?seriesId=${item.id}` },
+                { key: 'sanchez_stories_v2', category: 'Historias', icon: 'fa-solid fa-book-open', field: 'title', url: item => `pages/historias.html#story-${item.id}` },
+                { key: 'playlist_db', category: 'Playlist', icon: 'fa-solid fa-music', field: 'title', url: () => `pages/playlist.html` },
+                { key: 'sanchez_bookmarks_db', category: 'Marcadores', icon: 'fa-solid fa-link', field: 'name', url: item => item.url, external: true }
+            ];
+
+            let allResults = [];
+
+            // Search localStorage sources
+            sources.forEach(source => {
+                try {
+                    const data = JSON.parse(localStorage.getItem(source.key) || '[]');
+                    if (Array.isArray(data)) {
+                        const matches = data.filter(item => item[source.field] && item[source.field].toLowerCase().includes(query));
+                        if (matches.length > 0) {
+                            allResults.push({
+                                category: source.category,
+                                icon: source.icon,
+                                items: matches.map(item => ({
+                                    name: item[source.field],
+                                    url: source.url(item),
+                                    external: !!source.external
+                                }))
+                            });
+                        }
+                    }
+                } catch (e) { console.error(`Error searching ${source.key}:`, e); }
+            });
+
+            // --- Special Case: Search Achievements (data is in logros.js, not localStorage) ---
+            // NOTE: The achievements data is redefined here to be accessible. For a cleaner approach, this would be exposed from a shared module.
+            const achievementsList = [
+                { id: 'web_login', title: 'Primer Logueo', desc: 'Inicia la aplicación por primera vez.' },
+                { id: 'series_add_1', title: 'Comienzo', desc: 'Añade tu primera serie.' },
+                { id: 'games_add_1', title: 'Primer Juego', desc: 'Añade tu primer juego a la biblioteca.' },
+                { id: 'vault_enter', title: 'El Elegido', desc: 'Entra en la bóveda correctamente.' },
+                { id: 'secret_hacker', title: 'Hacker', desc: 'Abre la consola del navegador (F12) y escribe unlockHacker().' },
+                { id: 'games_pro_10', title: 'Gamer Pro', desc: 'Completa 10 juegos.' },
+                { id: 'series_critic_10', title: 'Crítico', desc: 'Escribe 10 sinopsis.' },
+            ];
+            const achievementMatches = achievementsList.filter(ach => ach.title.toLowerCase().includes(query) || ach.desc.toLowerCase().includes(query));
+            if (achievementMatches.length > 0) {
+                allResults.push({
+                    category: 'Logros',
+                    icon: 'fa-solid fa-trophy',
+                    items: achievementMatches.map(item => ({
+                        name: item.title,
+                        url: `pages/logros.html#${item.id}`
+                    }))
+                });
+            }
+
+            return allResults;
+        }
+
+        function getRecentItems() {
+            // For simplicity, gets the last item from a few key modules
+            const recents = [];
+            try {
+                const games = JSON.parse(localStorage.getItem('mis_juegos_db') || '[]');
+                if (games.length > 0) recents.push({ category: 'Juegos', icon: 'fa-solid fa-gamepad', item: { name: games[games.length - 1].name, url: `pages/juegos.html?gameId=${games[games.length - 1].id}` } });
+
+                const series = JSON.parse(localStorage.getItem('my_series_data_v1') || '[]');
+                if (series.length > 0) recents.push({ category: 'Series y Anime', icon: 'fa-solid fa-tv', item: { name: series[series.length - 1].title, url: `pages/series.html?seriesId=${series[series.length - 1].id}` } });
+
+                const stories = JSON.parse(localStorage.getItem('sanchez_stories_v2') || '[]');
+                if (stories.length > 0) recents.push({ category: 'Historias', icon: 'fa-solid fa-book-open', item: { name: stories[0].title, url: `pages/historias.html#story-${stories[0].id}` } }); // unshift is used in stories
+            } catch (e) { console.error("Error fetching recent items:", e); }
+            
+            return recents.map(r => ({ category: r.category, icon: r.icon, items: [r.item] }));
+        }
+
+        function renderResults(groupedResults, title) {
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!groupedResults || groupedResults.length === 0) {
+                resultsContainer.innerHTML = `<div class="search-state"><i class="fa-solid fa-box-open"></i> No se encontraron resultados.</div>`;
+                return;
+            }
+
+            let html = '';
+            if (title) {
+                html += `<h4 class="search-main-title">${title}</h4>`;
+            }
+
+            groupedResults.forEach(group => {
+                html += `
+                    <div class="search-group">
+                        <h5 class="search-group-title"><i class="${group.icon}"></i> ${group.category}</h5>
+                        <ul class="search-item-list">
+                            ${group.items.map(item => `
+                                <li>
+                                    <a href="${item.url}" ${item.external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                                        ${item.name}
+                                        ${item.external ? '<i class="fa-solid fa-arrow-up-right-from-square fa-xs"></i>' : ''}
+                                    </a>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
     </script>
 </body>
 </html>

@@ -8,8 +8,8 @@ const STORAGE_KEY = 'mis_juegos_db';
 const FALLBACK_GAME_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='184' height='69' viewBox='0 0 184 69'%3E%3Crect width='184' height='69' fill='%232a2a2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555' font-family='sans-serif' font-size='14'%3ENO COVER%3C/text%3E%3C/svg%3E";
 
 let gamesData = [];
-let currentFilter = 'all';
 let editingGameId = null;
+let quickEditingGameId = null;
 
 // Cache del DOM para mejorar rendimiento
 const dom = {};
@@ -36,6 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarJuegos();
     setupEventListeners();
     renderizarJuegos();
+
+    // Check for URL params to open a drawer from global search
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameIdToOpen = urlParams.get('gameId');
+    if (gameIdToOpen) {
+        // Use a timeout to ensure the DOM is fully ready and rendered
+        setTimeout(() => openDrawer(parseInt(gameIdToOpen)), 300);
+    }
 });
 
 function cargarJuegos() {
@@ -77,16 +85,6 @@ function setupEventListeners() {
         dom.form.addEventListener('submit', guardarJuego);
     }
 
-    // Filtros
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            renderizarJuegos();
-        });
-    });
-
     // Inputs dinámicos
     const metaInput = document.getElementById('metacriticInput');
     if (metaInput) metaInput.addEventListener('input', updateMetacriticColor);
@@ -98,6 +96,82 @@ function setupEventListeners() {
     document.getElementById('closeDrawerBtn')?.addEventListener('click', () => {
         document.getElementById('detailsDrawer').classList.remove('open');
     });
+}
+
+function toggleGameQuickEdit(id, btn) {
+    const card = btn.closest('.game-card');
+    const isEditing = card.classList.contains('quick-edit-mode');
+
+    if (quickEditingGameId && quickEditingGameId !== id) {
+        const otherCard = document.querySelector(`.game-card.quick-edit-mode`);
+        if (otherCard) cancelGameQuickEdit(quickEditingGameId, otherCard);
+    }
+
+    if (isEditing) {
+        cancelGameQuickEdit(id, card);
+    } else {
+        quickEditingGameId = id;
+        const game = gamesData.find(g => g.id === id);
+        if (!game) return;
+
+        card.classList.add('quick-edit-mode');
+        const overlay = card.querySelector('.quick-edit-overlay');
+
+        overlay.innerHTML = `
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Estado</label>
+            <select id="quick-edit-status-${id}" class="quick-edit-input">
+                <option value="Pendiente" ${game.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="Jugando" ${game.status === 'Jugando' ? 'selected' : ''}>Jugando</option>
+                <option value="Completado" ${game.status === 'Completado' ? 'selected' : ''}>Completado</option>
+                <option value="Abandonado" ${game.status === 'Abandonado' ? 'selected' : ''}>Abandonado</option>
+            </select>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Puntuación</label>
+            <input type="number" id="quick-edit-score-${id}" class="quick-edit-input" value="${game.metacritic}" min="0" max="100">
+            <div class="quick-edit-actions">
+                <button class="quick-edit-btn quick-edit-cancel" onclick="event.stopPropagation(); cancelGameQuickEdit(${id})"><i class="fa-solid fa-xmark"></i></button>
+                <button class="quick-edit-btn quick-edit-confirm" onclick="event.stopPropagation(); saveGameQuickEdit(${id})"><i class="fa-solid fa-check"></i></button>
+            </div>
+        `;
+
+        overlay.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveGameQuickEdit(id);
+            } else if (e.key === 'Escape') {
+                cancelGameQuickEdit(id);
+            }
+        });
+        
+        overlay.querySelector('select').focus();
+    }
+}
+
+function saveGameQuickEdit(id) {
+    const card = document.querySelector(`.game-card[data-game-id="${id}"]`);
+    if (!card) return;
+
+    const newStatus = card.querySelector(`#quick-edit-status-${id}`).value;
+    const newScore = parseInt(card.querySelector(`#quick-edit-score-${id}`).value);
+
+    const index = gamesData.findIndex(g => g.id === id);
+    if (index !== -1) {
+        gamesData[index].status = newStatus;
+        gamesData[index].metacritic = newScore;
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(gamesData));
+        renderizarJuegos(); // Re-render the whole list
+    }
+    quickEditingGameId = null;
+}
+
+function cancelGameQuickEdit(id, cardElement) {
+    const card = cardElement || document.querySelector(`.game-card[data-game-id="${id}"]`);
+    if (card) {
+        card.classList.remove('quick-edit-mode');
+        const overlay = card.querySelector('.quick-edit-overlay');
+        overlay.innerHTML = '';
+    }
+    quickEditingGameId = null;
 }
 
 function guardarJuego(e) {
@@ -164,16 +238,13 @@ function renderizarJuegos() {
     if (!dom.grid) return;
 
     let gamesToRender = [...gamesData];
+    gamesToRender.sort((a, b) => b.id - a.id); // Más recientes primero
 
-    // Filtros
-    if (currentFilter === 'completed') {
-        gamesToRender = gamesToRender.filter(g => g.status === 'Completado');
-    } else if (currentFilter === 'top-rated') {
-        gamesToRender.sort((a, b) => (b.metacritic || 0) - (a.metacritic || 0));
-    } else {
-        gamesToRender.sort((a, b) => b.id - a.id); // Más recientes primero
+    if (gamesToRender.length === 0) {
+        dom.grid.innerHTML = `<p class="empty-state" style="text-align:center; grid-column: 1 / -1;">No hay juegos en la biblioteca.</p>`;
+        return;
     }
-
+    
     dom.grid.innerHTML = gamesToRender.map(game => {
         // Lógica de color Metacritic
         let scoreClass = 'score-none';
@@ -190,13 +261,15 @@ function renderizarJuegos() {
         ` : '';
 
         return `
-            <div class="game-card" onclick="openDrawer(${game.id})">
+            <div class="game-card" data-game-id="${game.id}">
+                <div class="quick-edit-overlay"></div>
                 <img src="${game.cover || FALLBACK_GAME_IMG}" 
                      alt="${game.name}" 
                      class="game-card-img" 
-                     onerror="this.onerror=null; this.src='${FALLBACK_GAME_IMG}';">
+                     onerror="this.onerror=null; this.src='${FALLBACK_GAME_IMG}';"
+                     onclick="openDrawer(${game.id})">
                 
-                <div class="game-card-info">
+                <div class="game-card-info" onclick="openDrawer(${game.id})">
                     <span class="game-card-title">${game.name}</span>
                     <div class="game-card-meta">
                         <span>${game.status}</span>
@@ -205,8 +278,12 @@ function renderizarJuegos() {
                     ${progressHTML}
                 </div>
                 
-                <div class="game-card-score ${scoreClass}">
+                <div class="game-card-score ${scoreClass}" onclick="openDrawer(${game.id})">
                     ${game.metacritic || '-'}
+                </div>
+
+                <div class="card-actions" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); z-index: 5;">
+                    <button class="action-btn quick-edit-trigger" onclick="event.stopPropagation(); toggleGameQuickEdit(${game.id}, this)" title="Edición Rápida"><i class="fa-solid fa-bolt"></i></button>
                 </div>
             </div>
         `;
@@ -323,6 +400,9 @@ function toggleProgressField() {
 window.openDrawer = openDrawer;
 window.openModal = openModal;
 window.closeModal = closeModal;
+window.toggleGameQuickEdit = toggleGameQuickEdit;
+window.saveGameQuickEdit = saveGameQuickEdit;
+window.cancelGameQuickEdit = cancelGameQuickEdit;
 
 // --- Integración de Logros (Opcional) ---
 function checkAchievements() {

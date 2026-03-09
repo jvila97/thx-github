@@ -17,6 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
         loadData();
         setupEventListeners();
         app.render();
+
+        // Check for URL params to open details from global search
+        const urlParams = new URLSearchParams(window.location.search);
+        const seriesIdToOpen = urlParams.get('seriesId');
+        if (seriesIdToOpen) {
+            setTimeout(() => app.openDetails(parseInt(seriesIdToOpen)), 300);
+        }
     }
 });
 
@@ -48,6 +55,8 @@ function loadData() {
 
 const app = {
     currentSeriesId: null,
+    quickEditingId: null, // Track which card is in quick edit mode
+
     // Navegación entre vistas
     navigate: (viewId) => {
         // Ocultar todas las vistas (dentro del módulo actual)
@@ -253,6 +262,85 @@ const app = {
         setTimeout(() => toast.classList.remove('show'), 3000);
     },
 
+    toggleQuickEdit: (id, btn) => {
+        const card = btn.closest('.series-card');
+        const isEditing = card.classList.contains('quick-edit-mode');
+
+        // If another card is being edited, cancel it first
+        if (app.quickEditingId && app.quickEditingId !== id) {
+            const otherCard = document.querySelector(`.series-card.quick-edit-mode`);
+            if (otherCard) app.cancelQuickEdit(app.quickEditingId, otherCard);
+        }
+
+        if (isEditing) {
+            app.cancelQuickEdit(id, card);
+        } else {
+            app.quickEditingId = id;
+            const serie = seriesData.find(s => s.id === id);
+            if (!serie) return;
+
+            card.classList.add('quick-edit-mode');
+            const overlay = card.querySelector('.quick-edit-overlay');
+
+            overlay.innerHTML = `
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Estado</label>
+                <select id="quick-edit-status-${id}" class="quick-edit-input">
+                    <option value="pendiente" ${serie.status === 'pendiente' ? 'selected' : ''}>📋 Pendiente</option>
+                    <option value="viendo" ${serie.status === 'viendo' ? 'selected' : ''}>👀 Viendo</option>
+                    <option value="simulcast" ${serie.status === 'simulcast' ? 'selected' : ''}>📡 Simulcast</option>
+                    <option value="visto" ${serie.status === 'visto' ? 'selected' : ''}>✅ Visto</option>
+                    <option value="abandonado" ${serie.status === 'abandonado' ? 'selected' : ''}>❌ Abandonado</option>
+                </select>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Capítulos</label>
+                <input type="number" id="quick-edit-caps-${id}" class="quick-edit-input" value="${serie.caps}" min="1">
+                <div class="quick-edit-actions">
+                    <button class="quick-edit-btn quick-edit-cancel" onclick="event.stopPropagation(); app.cancelQuickEdit(${id})"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="quick-edit-btn quick-edit-confirm" onclick="event.stopPropagation(); app.saveQuickEdit(${id})"><i class="fa-solid fa-check"></i></button>
+                </div>
+            `;
+
+            // Add keyboard listeners
+            overlay.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    app.saveQuickEdit(id);
+                } else if (e.key === 'Escape') {
+                    app.cancelQuickEdit(id);
+                }
+            });
+            
+            overlay.querySelector('select').focus();
+        }
+    },
+
+    saveQuickEdit: (id) => {
+        const card = document.querySelector(`.series-card.quick-edit-mode`);
+        if (!card) return;
+
+        const newStatus = card.querySelector(`#quick-edit-status-${id}`).value;
+        const newCaps = parseInt(card.querySelector(`#quick-edit-caps-${id}`).value);
+
+        const index = seriesData.findIndex(s => s.id === id);
+        if (index !== -1) {
+            seriesData[index].status = newStatus;
+            seriesData[index].caps = newCaps;
+            seriesData[index].totalHours = ((newCaps * seriesData[index].duration) / 60).toFixed(1);
+            saveData();
+            app.showToast('Cambios guardados');
+        }
+        app.quickEditingId = null;
+    },
+
+    cancelQuickEdit: (id, cardElement) => {
+        const card = cardElement || document.querySelector(`.series-card.quick-edit-mode`);
+        if (card) {
+            card.classList.remove('quick-edit-mode');
+            const overlay = card.querySelector('.quick-edit-overlay');
+            overlay.innerHTML = ''; // Clean up
+        }
+        app.quickEditingId = null;
+    },
+
     render: () => {
         const grid = document.getElementById('seriesGrid');
         const counter = document.getElementById('total-counter');
@@ -267,37 +355,38 @@ const app = {
         if (hoursCounter) hoursCounter.textContent = `${totalHoursSum.toFixed(1)}h Estimadas`;
 
         // Calcular contadores
-        const stats = { visto: 0, viendo: 0, simulcast: 0, abandonado: 0 };
+        const stats = { pendiente: 0, visto: 0, viendo: 0, simulcast: 0, abandonado: 0 };
         seriesData.forEach(s => {
             if (stats[s.status] !== undefined) stats[s.status]++;
-            else stats.viendo++; // Fallback por si acaso
+            else stats.pendiente++; // Fallback for older entries without a status
         });
 
         statusCounters.innerHTML = `
+            <span class="status-pill bg-pendiente"><i class="fa-solid fa-list-check"></i> Pendiente: ${stats.pendiente}</span>
             <span class="status-pill bg-visto"><i class="fa-solid fa-check"></i> Visto: ${stats.visto}</span>
             <span class="status-pill bg-viendo"><i class="fa-solid fa-eye"></i> Viendo: ${stats.viendo}</span>
             <span class="status-pill bg-simulcast"><i class="fa-solid fa-satellite-dish"></i> Simulcast: ${stats.simulcast}</span>
             <span class="status-pill bg-abandonado"><i class="fa-solid fa-xmark"></i> Drop: ${stats.abandonado}</span>
         `;
 
-        seriesData.forEach(serie => {
+        [...seriesData].reverse().forEach(serie => {
             const card = document.createElement('div');
             card.className = 'series-card';
-            // Hacemos toda la tarjeta clickable para abrir detalles
-            card.onclick = () => app.openDetails(serie.id);
-            card.style.cursor = 'pointer';
             
             card.innerHTML = `
+                <div class="quick-edit-overlay"></div>
                 <div class="card-actions">
-                    <button class="action-btn edit-btn" onclick="event.stopPropagation(); app.openDetails(${serie.id}, true)"><i class="fa-solid fa-pencil"></i></button>
-                    <button class="action-btn delete-btn" onclick="event.stopPropagation(); app.deleteSeries(${serie.id})"><i class="fa-solid fa-trash"></i></button>
+                    <button class="action-btn quick-edit-trigger" onclick="event.stopPropagation(); app.toggleQuickEdit(${serie.id}, this)" title="Edición Rápida"><i class="fa-solid fa-bolt"></i></button>
+                    <button class="action-btn edit-btn" onclick="event.stopPropagation(); app.openDetails(${serie.id}, true)" title="Editar Completo"><i class="fa-solid fa-pencil"></i></button>
+                    <button class="action-btn delete-btn" onclick="event.stopPropagation(); app.deleteSeries(${serie.id})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                 </div>
                 <img src="${serie.cover}" 
                      alt="${serie.title}" 
                      class="card-image"
                      onerror="this.onerror=null; this.src='${FALLBACK_IMG}';"
+                     onclick="app.openDetails(${serie.id})" style="cursor:pointer;"
                 >
-                <div class="card-content">
+                <div class="card-content" onclick="app.openDetails(${serie.id})" style="cursor:pointer;">
                     <div class="card-title">${serie.title}</div>
                     <div class="card-meta">
                         <span><i class="fa-solid fa-layer-group"></i> ${serie.caps} caps</span>
@@ -307,6 +396,7 @@ const app = {
                     
                     <!-- Selector de Estado Rápido -->
                     <select onclick="event.stopPropagation()" onchange="app.updateStatus(${serie.id}, this.value)" class="status-select bg-${serie.status}">
+                        <option value="pendiente" ${serie.status === 'pendiente' ? 'selected' : ''}>📋 Pendiente</option>
                         <option value="viendo" ${serie.status === 'viendo' ? 'selected' : ''}>👀 Viendo</option>
                         <option value="simulcast" ${serie.status === 'simulcast' ? 'selected' : ''}>📡 Simulcast</option>
                         <option value="visto" ${serie.status === 'visto' ? 'selected' : ''}>✅ Visto</option>

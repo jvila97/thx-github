@@ -142,7 +142,7 @@ function renderAchievements() {
         const unlockInfo = unlocked.find(u => u.id === ach.id);
         
         return `
-            <div class="achievement-card ${isUnlocked ? 'unlocked' : ''}">
+            <div class="achievement-card ${isUnlocked ? 'unlocked' : ''}" id="${ach.id}">
                 <div class="achievement-icon"><i class="${ach.icon}"></i></div>
                 <div class="achievement-info">
                     <h3>${ach.title}</h3>

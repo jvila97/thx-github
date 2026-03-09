@@ -11,6 +11,7 @@ let currentStoryId = null; // Para saber qué historia estamos editando/leyendo
 let currentChapterIndex = 0; // Índice del capítulo actual en lectura
 
 const app = {
+    quickEditingId: null,
     init: () => {
         app.loadStories();
         app.setupEventListeners();
@@ -114,6 +115,82 @@ const app = {
             stories = stories.filter(s => s.id !== id);
             app.saveStories();
         }
+    },
+
+    toggleStoryQuickEdit: (id, btn) => {
+        const card = btn.closest('.story-card-v2');
+        const isEditing = card.classList.contains('quick-edit-mode');
+
+        if (app.quickEditingId && app.quickEditingId !== id) {
+            const otherCard = document.querySelector(`.story-card-v2.quick-edit-mode`);
+            if (otherCard) app.cancelStoryQuickEdit(app.quickEditingId, otherCard);
+        }
+
+        if (isEditing) {
+            app.cancelStoryQuickEdit(id, card);
+        } else {
+            app.quickEditingId = id;
+            const story = stories.find(s => s.id === id);
+            if (!story) return;
+
+            card.classList.add('quick-edit-mode');
+            const overlay = card.querySelector('.quick-edit-overlay');
+
+            overlay.innerHTML = `
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Título</label>
+                <input type="text" id="quick-edit-title-${id}" class="quick-edit-input" value="${story.title}">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Género</label>
+                <select id="quick-edit-genre-${id}" class="quick-edit-input">
+                    <option value="Aventura" ${story.genre === 'Aventura' ? 'selected' : ''}>⚔️ Aventura</option>
+                    <option value="Sci-Fi" ${story.genre === 'Sci-Fi' ? 'selected' : ''}>🚀 Sci-Fi</option>
+                    <option value="Fantasía" ${story.genre === 'Fantasía' ? 'selected' : ''}>🔮 Fantasía</option>
+                    <option value="Terror" ${story.genre === 'Terror' ? 'selected' : ''}>👻 Terror</option>
+                    <option value="Slice of Life" ${story.genre === 'Slice of Life' ? 'selected' : ''}>☕ Slice of Life</option>
+                    <option value="Código" ${story.genre === 'Código' ? 'selected' : ''}>💻 Código / Dev</option>
+                </select>
+                <div class="quick-edit-actions">
+                    <button class="quick-edit-btn quick-edit-cancel" onclick="event.stopPropagation(); app.cancelStoryQuickEdit(${id})"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="quick-edit-btn quick-edit-confirm" onclick="event.stopPropagation(); app.saveStoryQuickEdit(${id})"><i class="fa-solid fa-check"></i></button>
+                </div>
+            `;
+
+            overlay.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    app.saveStoryQuickEdit(id);
+                } else if (e.key === 'Escape') {
+                    app.cancelStoryQuickEdit(id);
+                }
+            });
+            
+            overlay.querySelector('input').focus();
+        }
+    },
+
+    saveStoryQuickEdit: (id) => {
+        const card = document.getElementById(`story-${id}`);
+        if (!card) return;
+
+        const newTitle = card.querySelector(`#quick-edit-title-${id}`).value;
+        const newGenre = card.querySelector(`#quick-edit-genre-${id}`).value;
+
+        const index = stories.findIndex(s => s.id === id);
+        if (index !== -1) {
+            stories[index].title = newTitle;
+            stories[index].genre = newGenre;
+            app.saveStories();
+        }
+        app.quickEditingId = null;
+    },
+
+    cancelStoryQuickEdit: (id, cardElement) => {
+        const card = cardElement || document.getElementById(`story-${id}`);
+        if (card) {
+            card.classList.remove('quick-edit-mode');
+            const overlay = card.querySelector('.quick-edit-overlay');
+            overlay.innerHTML = '';
+        }
+        app.quickEditingId = null;
     },
 
     // --- GESTIÓN DE CAPÍTULOS ---
@@ -556,7 +633,8 @@ const app = {
         }
 
         grid.innerHTML = stories.map(story => `
-            <div class="story-card-v2">
+            <div class="story-card-v2" id="story-${story.id}">
+                <div class="quick-edit-overlay"></div>
                 <div class="story-cover-wrapper">
                     <img src="${story.cover || FALLBACK_COVER}" class="story-cover-img" onerror="this.src='${FALLBACK_COVER}'">
                     <span class="genre-tag">${story.genre}</span>
@@ -564,7 +642,7 @@ const app = {
                         <i class="fa-solid fa-layer-group"></i> Capítulos: ${story.chapters.length}
                     </div>
                 </div>
-                <div class="story-info-v2">
+                <div class="story-info-v2" onclick="app.openReader(${story.id})">
                     <h3 class="story-title-v2">${story.title}</h3>
                     <small style="color:var(--text-muted); display:block; margin-bottom:0.5rem;">${story.createdAt}</small>
                 </div>
@@ -574,6 +652,9 @@ const app = {
                     <button class="story-btn btn-read" onclick="app.openReader(${story.id})"><i class="fa-solid fa-book-open"></i> Leer</button>
                     <button class="story-btn btn-add-chap" onclick="app.openChapterManager(${story.id})"><i class="fa-solid fa-plus"></i> Capítulos</button>
                     <button class="story-btn btn-lore" onclick="app.openLoreManager(${story.id})"><i class="fa-solid fa-database"></i> Lore</button>
+                    <button class="story-btn" onclick="app.toggleStoryQuickEdit(${story.id}, this)" title="Edición Rápida" style="flex: 0 0 36px; background: rgba(84, 165, 212, 0.15); color: var(--secondary-color); border: 1px solid rgba(84, 165, 212, 0.2);">
+                        <i class="fa-solid fa-bolt"></i>
+                    </button>
                     <button class="story-btn btn-export-card" onclick="app.exportStory(${story.id})" title="Exportar JSON">
                         <i class="fa-solid fa-download"></i>
                     </button>

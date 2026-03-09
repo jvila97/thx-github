@@ -384,7 +384,7 @@
 
     <script>
         // --- DATA & CONFIG ---
-        const songs = [
+        let songs = [
             { file: 'Bad Voy_spotdown.org.mp3', title: 'Bad Voy', artist: 'Bad Bunny', album: '2 v 2 Remastered', duration: '3:05' },
             { file: 'Disney flus_spotdown.org.mp3', title: 'Disney flus', artist: 'Beny Jr', album: '2 v 2 Remastered', duration: '2:45' },
             { file: 'Formidable_spotdown.org.mp3', title: 'Formidable', artist: 'Stromae', album: 'Racine Carrée', duration: '3:33' },
@@ -397,6 +397,8 @@
             { file: 'UltraBakano_spotdown.org.mp3', title: 'UltraBakano', artist: 'El Jordan 23', album: 'Palabreo', duration: '3:10' },
             { file: 'Vaqueros y mercurial_spotdown.org.mp3', title: 'Vaqueros y mercurial', artist: 'Polimá Westcoast', album: 'Ultra Solo', duration: '3:00' }
         ];
+
+        const PLAYLIST_KEY = 'playlist_db';
 
         // --- DOM ELEMENTS ---
         const dom = {
@@ -430,9 +432,27 @@
 
         // --- INITIALIZATION ---
         function init() {
+            loadPlaylist();
             renderPlaylist();
             setupListeners();
             initCursor();
+        }
+
+        function loadPlaylist() {
+            const stored = localStorage.getItem(PLAYLIST_KEY);
+            if (stored) {
+                const loadedSongs = JSON.parse(stored);
+                if (loadedSongs.length === songs.length) {
+                    songs = songs.map((song, index) => ({
+                        ...song, // keep file path
+                        title: loadedSongs[index].title,
+                        artist: loadedSongs[index].artist,
+                    }));
+                }
+            }
+        }
+        function savePlaylist() {
+            localStorage.setItem(PLAYLIST_KEY, JSON.stringify(songs.map(({title, artist, album, duration}) => ({title, artist, album, duration}))));
         }
 
         function initCursor() {
@@ -473,18 +493,21 @@
             `;
             
             dom.songList.innerHTML = songs.map((s, i) => `
-                <tr class="song-row" id="row-${i}" onclick="playSong(${i})">
-                    <td class="index-col">
+                <tr class="song-row" id="row-${i}">
+                    <td class="index-col" onclick="playSong(${i})">
                         <span class="song-index">${i+1}</span>
                         <i class="fa-solid fa-play play-icon-small"></i>
                         ${equalizerHTML}
                     </td>
-                    <td>
+                    <td class="song-info-cell" onclick="playSong(${i})">
                         <div class="song-title">${s.title}</div>
                         <div class="song-artist">${s.artist}</div>
                     </td>
                     <td>${s.album}</td>
                     <td style="text-align: right;">${s.duration}</td>
+                    <td style="width: 80px; text-align: center;">
+                        <button class="btn-control" onclick="event.stopPropagation(); toggleSongQuickEdit(${i}, this)" title="Edición Rápida"><i class="fa-solid fa-bolt"></i></button>
+                    </td>
                 </tr>
             `).join('');
         }
@@ -602,6 +625,70 @@
             if (isNaN(s)) return '0:00';
             const m = Math.floor(s / 60), sec = Math.floor(s % 60);
             return `${m}:${sec < 10 ? '0' + sec : sec}`;
+        }
+
+        // --- QUICK EDIT LOGIC ---
+        let quickEditingSongIdx = null;
+
+        function toggleSongQuickEdit(idx, btn) {
+            const row = document.getElementById(`row-${idx}`);
+            const isEditing = row.classList.contains('quick-edit-mode');
+
+            if (quickEditingSongIdx !== null && quickEditingSongIdx !== idx) {
+                cancelSongQuickEdit(quickEditingSongIdx);
+            }
+
+            if (isEditing) {
+                cancelSongQuickEdit(idx);
+            } else {
+                quickEditingSongIdx = idx;
+                const song = songs[idx];
+                row.classList.add('quick-edit-mode');
+
+                const infoCell = row.querySelector('.song-info-cell');
+                infoCell.dataset.originalHtml = infoCell.innerHTML;
+                infoCell.onclick = null; // Disable play on click
+
+                infoCell.innerHTML = `
+                    <input type="text" id="quick-edit-title-${idx}" class="quick-edit-input" value="${song.title}" style="margin-bottom: 4px; background: #333; border: 1px solid #555; color: #fff; padding: 4px; border-radius: 2px; width: 100%;">
+                    <input type="text" id="quick-edit-artist-${idx}" class="quick-edit-input" value="${song.artist}" style="background: #333; border: 1px solid #555; color: #fff; padding: 4px; border-radius: 2px; width: 100%;">
+                `;
+
+                const actionsCell = row.cells[4];
+                actionsCell.dataset.originalHtml = actionsCell.innerHTML;
+                actionsCell.innerHTML = `
+                    <button class="btn-control" onclick="event.stopPropagation(); saveSongQuickEdit(${idx})"><i class="fa-solid fa-check" style="color: var(--spotify-green);"></i></button>
+                    <button class="btn-control" onclick="event.stopPropagation(); cancelSongQuickEdit(${idx})"><i class="fa-solid fa-xmark" style="color: #c94a4a;"></i></button>
+                `;
+
+                row.addEventListener('keydown', handleSongKeydown);
+                infoCell.querySelector('input').focus();
+            }
+        }
+
+        function handleSongKeydown(e) {
+            if (quickEditingSongIdx === null) return;
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveSongQuickEdit(quickEditingSongIdx);
+            } else if (e.key === 'Escape') {
+                cancelSongQuickEdit(quickEditingSongIdx);
+            }
+        }
+
+        function saveSongQuickEdit(idx) {
+            const row = document.getElementById(`row-${idx}`);
+            songs[idx].title = row.querySelector(`#quick-edit-title-${idx}`).value;
+            songs[idx].artist = row.querySelector(`#quick-edit-artist-${idx}`).value;
+            savePlaylist();
+            renderPlaylist();
+            quickEditingSongIdx = null;
+        }
+
+        function cancelSongQuickEdit(idx) {
+            // The easiest way to cancel is to just re-render from original data
+            renderPlaylist();
+            quickEditingSongIdx = null;
         }
 
         // --- GO ---
