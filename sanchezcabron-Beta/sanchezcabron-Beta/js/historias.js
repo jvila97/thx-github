@@ -10,8 +10,16 @@ let stories = [];
 let currentStoryId = null; // Para saber qué historia estamos editando/leyendo
 let currentChapterIndex = 0; // Índice del capítulo actual en lectura
 
+// Reader Preferences Default
+const readerPrefs = {
+    fontFamily: 'serif', // 'serif' or 'sans'
+    fontSize: 18,
+    theme: 'dark'
+};
+
 const app = {
     quickEditingId: null,
+    
     init: () => {
         app.loadStories();
         app.setupEventListeners();
@@ -97,6 +105,7 @@ const app = {
             title,
             genre,
             cover: cover || '',
+            rarity: 'common', // Default rarity
             createdAt: new Date().toLocaleDateString(),
             chapters: [] // Array vacío para futuros capítulos
         };
@@ -148,6 +157,13 @@ const app = {
                     <option value="Slice of Life" ${story.genre === 'Slice of Life' ? 'selected' : ''}>☕ Slice of Life</option>
                     <option value="Código" ${story.genre === 'Código' ? 'selected' : ''}>💻 Código / Dev</option>
                 </select>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Rareza</label>
+                <select id="quick-edit-rarity-${id}" class="quick-edit-input">
+                    <option value="common" ${story.rarity === 'common' ? 'selected' : ''}>⚪ Común</option>
+                    <option value="rare" ${story.rarity === 'rare' ? 'selected' : ''}>🔵 Raro</option>
+                    <option value="epic" ${story.rarity === 'epic' ? 'selected' : ''}>🟣 Épico</option>
+                    <option value="legendary" ${story.rarity === 'legendary' ? 'selected' : ''}>🟡 Legendario</option>
+                </select>
                 <div class="quick-edit-actions">
                     <button class="quick-edit-btn quick-edit-cancel" onclick="event.stopPropagation(); app.cancelStoryQuickEdit(${id})"><i class="fa-solid fa-xmark"></i></button>
                     <button class="quick-edit-btn quick-edit-confirm" onclick="event.stopPropagation(); app.saveStoryQuickEdit(${id})"><i class="fa-solid fa-check"></i></button>
@@ -173,11 +189,13 @@ const app = {
 
         const newTitle = card.querySelector(`#quick-edit-title-${id}`).value;
         const newGenre = card.querySelector(`#quick-edit-genre-${id}`).value;
+        const newRarity = card.querySelector(`#quick-edit-rarity-${id}`).value;
 
         const index = stories.findIndex(s => s.id === id);
         if (index !== -1) {
             stories[index].title = newTitle;
             stories[index].genre = newGenre;
+            stories[index].rarity = newRarity || 'common';
             app.saveStories();
         }
         app.quickEditingId = null;
@@ -351,6 +369,21 @@ const app = {
         const story = stories.find(s => s.id === id);
         if (!story) return;
         
+        // Ensure full data structure structure for export
+        if (!story.lore) {
+            story.lore = { synopsis: '', powerScale: '', worldRules: '', characters: [], album: [] };
+        } else {
+            story.lore.synopsis = story.lore.synopsis || '';
+            story.lore.powerScale = story.lore.powerScale || '';
+            story.lore.worldRules = story.lore.worldRules || '';
+            story.lore.characters = story.lore.characters || [];
+            story.lore.album = story.lore.album || [];
+        }
+        if (!story.chapters) story.chapters = [];
+
+        // Ensure rarity exists
+        if (!story.rarity) story.rarity = 'common';
+
         const dataStr = JSON.stringify(story, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -435,107 +468,302 @@ const app = {
         currentStoryId = id;
         const savedIndex = localStorage.getItem(`sanchez_bookmark_${id}`);
         currentChapterIndex = savedIndex ? parseInt(savedIndex) : 0;
+        
+        // Load Reader Preferences
+        const savedPrefs = localStorage.getItem('sanchez_reader_prefs');
+        if (savedPrefs) Object.assign(readerPrefs, JSON.parse(savedPrefs));
 
-        app.renderBookPage();
+        app.renderImmersiveReader();
+        document.body.classList.add('reading-mode-active');
         document.getElementById('readerOverlay').style.display = 'flex';
     },
 
     closeReader: () => {
         document.getElementById('readerOverlay').style.display = 'none';
+        document.body.classList.remove('reading-mode-active');
+        
+        // Stop animations if any
+        const canvas = document.getElementById('particleCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     },
 
-    renderBookPage: () => {
+    renderImmersiveReader: () => {
         const story = stories.find(s => s.id === currentStoryId);
+        const overlay = document.getElementById('readerOverlay');
+        
+        if (!story) return;
+        
+        // Ensure rarity defaults
+        const rarity = story.rarity || 'common';
+
+        // Construct background styles correctly to preserve CSS gradients
+        const leftBgStyle = `linear-gradient(90deg, var(--ambient-color), transparent), url('${story.cover || ''}')`;
+        const rightBgStyle = `linear-gradient(-90deg, var(--ambient-color), transparent), url('${story.cover || ''}')`;
+
+        // --- HTML Structure for Immersive Reader ---
+        overlay.innerHTML = `
+            <div class="reader-progress-bar" id="readerProgressBar"></div>
+            
+            <!-- Background Layers -->
+            <div class="reader-bg bg-${rarity}"></div>
+            ${rarity === 'legendary' ? '<canvas id="particleCanvas"></canvas>' : ''}
+
+            <!-- Immersive Side Panels -->
+            <div class="reader-side-panel left panel-${rarity}" style="background-image: ${leftBgStyle}"></div>
+            <div class="reader-side-panel right panel-${rarity}" style="background-image: ${rightBgStyle}"></div>
+            
+            <!-- Floating UI -->
+            <button class="reader-float-btn btn-exit" onclick="app.closeReader()" title="Salir"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="reader-container" id="readerContainer">
+                <div class="reader-content-wrapper" id="readerContentWrapper" style="font-family: ${readerPrefs.fontFamily === 'serif' ? '"Merriweather", serif' : '"Poppins", sans-serif'}; font-size: ${readerPrefs.fontSize}px;">
+                    <!-- Content injected here -->
+                </div>
+            </div>
+
+            <!-- Table of Contents Sidebar -->
+            <div class="reader-toc-backdrop" id="readerTocBackdrop" onclick="app.toggleChapterPanel(false)"></div>
+            <div class="reader-toc-sidebar" id="readerTocSidebar">
+                <div class="toc-header">
+                    <h3>Índice</h3>
+                    <button class="btn-icon" onclick="app.toggleChapterPanel(false)"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="toc-list">
+                    <!-- Dynamically populated by buildChapterPanel -->
+                </div>
+            </div>
+
+            <!-- Controls Toolbar -->
+            <div class="reader-controls-toolbar">
+                <button class="reader-ctrl-btn" onclick="app.toggleReaderFont()" title="Cambiar Fuente">
+                    <i class="fa-solid fa-font"></i>
+                </button>
+                <div class="reader-size-ctrl">
+                    <button class="reader-ctrl-btn small" onclick="app.adjustFontSize(-2)">A-</button>
+                    <span id="fontSizeDisplay">${readerPrefs.fontSize}</span>
+                    <button class="reader-ctrl-btn small" onclick="app.adjustFontSize(2)">A+</button>
+                </div>
+                <button class="reader-ctrl-btn" onclick="app.toggleChapterPanel()" title="Índice">
+                    <i class="fa-solid fa-list-ol"></i>
+                </button>
+            </div>
+
+            <!-- Chapter Navigation Fixed Bottom -->
+            <div class="chapter-nav-fixed">
+                <button class="chap-nav-btn" id="btnPrevChap" onclick="app.prevChapter()" ${currentChapterIndex === 0 ? 'disabled' : ''}>
+                    <i class="fa-solid fa-chevron-left"></i> Anterior
+                </button>
+                <div class="chap-info-display">
+                    <span class="chap-number" id="chapNumDisplay">CAPÍTULO ${currentChapterIndex + 1}</span>
+                </div>
+                <button class="chap-nav-btn" id="btnNextChap" onclick="app.nextChapter()" ${!story.chapters.length || currentChapterIndex >= story.chapters.length - 1 ? 'disabled' : ''}>
+                    Siguiente <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        `;
+
+        // Initialize Legendary Particles if needed
+        if (rarity === 'legendary') {
+            setTimeout(app.initLegendaryParticles, 100);
+        }
+
+        app.loadChapterContent();
+        app.buildChapterPanel(); // Load sidebar content immediately
+        
+        // Scroll Event for Progress Bar
+        const container = document.getElementById('readerContainer');
+        container.addEventListener('scroll', () => {
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight - container.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            document.getElementById('readerProgressBar').style.width = `${progress}%`;
+        });
+    },
+
+    loadChapterContent: () => {
+        const story = stories.find(s => s.id === currentStoryId);
+        const container = document.getElementById('readerContentWrapper');
+        
         if (!story || !story.chapters.length) {
-            document.getElementById('pageRightContent').innerHTML = '<p style="text-align:center; margin-top:50%;">No hay capítulos disponibles.</p>';
+            container.innerHTML = '<div class="empty-chapter">No hay capítulos disponibles.</div>';
             return;
         }
 
-        // Validar índice
-        if (currentChapterIndex < 0) currentChapterIndex = 0;
-        if (currentChapterIndex >= story.chapters.length) currentChapterIndex = story.chapters.length - 1;
-
         const chapter = story.chapters[currentChapterIndex];
         
-        // --- PÁGINA IZQUIERDA (Portada / Info) ---
-        const leftHTML = `
-            <div class="book-title-page">
-                <img src="${story.cover || FALLBACK_COVER}" class="book-cover-mini">
-                <h2 style="color:var(--primary-color); margin-bottom:0.5rem;">${story.title}</h2>
-                <div style="width:50px; height:2px; background:var(--accent-color); margin: 1rem auto;"></div>
-                <h3 style="color:#888;">${chapter.title}</h3>
-                <p style="font-size:0.9rem; color:#666; margin-top:2rem;">
-                    Capítulo ${currentChapterIndex + 1} de ${story.chapters.length}
-                </p>
+        // Format content paragraphs
+        const formattedContent = chapter.content.split('\n')
+            .map(p => p.trim() ? `<p>${p}</p>` : '')
+            .join('');
+
+        container.innerHTML = `
+            <div class="reader-chapter-header">
+                <h1>${chapter.title}</h1>
+                <div class="chapter-meta-line"></div>
+            </div>
+            <div class="reader-text-body">
+                ${formattedContent}
+            </div>
+            <div class="reader-chapter-footer">
+                <i class="fa-solid fa-asterisk"></i>
             </div>
         `;
-        document.getElementById('pageLeftContent').innerHTML = leftHTML;
 
-        // --- PÁGINA DERECHA (Texto) ---
-        const formattedContent = chapter.content.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+        // Scroll to top
+        document.getElementById('readerContainer').scrollTop = 0;
         
-        const rightHTML = `
-            <h2 class="chapter-title-large">${chapter.title}</h2>
-            <div class="chapter-body">${formattedContent}</div>
-        `;
+        // Update Navigation UI State
+        const btnPrev = document.getElementById('btnPrevChap');
+        const btnNext = document.getElementById('btnNextChap');
+        const chapDisplay = document.getElementById('chapNumDisplay');
         
-        const rightContainer = document.getElementById('pageRightContent');
-        rightContainer.innerHTML = rightHTML;
-        rightContainer.scrollTop = 0; // Reset scroll
+        if(btnPrev) btnPrev.disabled = currentChapterIndex === 0;
+        if(btnNext) btnNext.disabled = currentChapterIndex >= story.chapters.length - 1;
+        if(chapDisplay) chapDisplay.textContent = `CAPÍTULO ${currentChapterIndex + 1}`;
 
-        // Actualizar UI
-        document.getElementById('pageNumberDisplay').textContent = currentChapterIndex + 1;
-        document.getElementById('readerProgress').textContent = `Capítulo ${currentChapterIndex + 1}/${story.chapters.length}`;
+        // Save progress automatically
+        localStorage.setItem(`sanchez_bookmark_${currentStoryId}`, currentChapterIndex);
+    },
+
+    buildChapterPanel: () => {
+        const story = stories.find(s => s.id === currentStoryId);
+        const container = document.querySelector('.toc-list');
         
-        // Estado del Marcapáginas
-        const savedIndex = localStorage.getItem(`sanchez_bookmark_${currentStoryId}`);
-        const ribbon = document.getElementById('bookmarkRibbon');
-        if (savedIndex && parseInt(savedIndex) === currentChapterIndex) {
-            ribbon.classList.add('active');
-        } else {
-            ribbon.classList.remove('active');
+        if (!container) return;
+        
+        container.innerHTML = '';
+
+        if (!story || !story.chapters || story.chapters.length === 0) {
+            container.innerHTML = '<div class="toc-empty">Esta historia no tiene capítulos.</div>';
+            return;
         }
+
+        story.chapters.forEach((chapter, index) => {
+            const item = document.createElement('div');
+            item.className = `toc-item ${index === currentChapterIndex ? 'active' : ''}`;
+            item.innerHTML = `<span class="toc-num">${index + 1}.</span><span class="toc-title">${chapter.title || 'Capítulo ' + (index + 1)}</span>`;
+            // Preparamos el click, aunque jumpToChapter se conectará en el siguiente paso
+            item.onclick = () => { if(app.jumpToChapter) app.jumpToChapter(index); };
+            container.appendChild(item);
+        });
+    },
+
+    toggleReaderFont: () => {
+        readerPrefs.fontFamily = readerPrefs.fontFamily === 'serif' ? 'sans' : 'serif';
+        app.saveReaderPrefs();
+        
+        const wrapper = document.getElementById('readerContentWrapper');
+        if (wrapper) {
+            wrapper.style.fontFamily = readerPrefs.fontFamily === 'serif' ? '"Merriweather", serif' : '"Poppins", sans-serif';
+        }
+    },
+
+    adjustFontSize: (delta) => {
+        let newSize = readerPrefs.fontSize + delta;
+        if (newSize < 14) newSize = 14;
+        if (newSize > 32) newSize = 32;
+        
+        readerPrefs.fontSize = newSize;
+        app.saveReaderPrefs();
+        
+        document.getElementById('fontSizeDisplay').textContent = newSize;
+        const wrapper = document.getElementById('readerContentWrapper');
+        if (wrapper) wrapper.style.fontSize = `${newSize}px`;
+    },
+
+    saveReaderPrefs: () => {
+        localStorage.setItem('sanchez_reader_prefs', JSON.stringify(readerPrefs));
+    },
+
+    toggleChapterPanel: (forceState = null) => {
+        const sidebar = document.getElementById('readerTocSidebar');
+        const backdrop = document.getElementById('readerTocBackdrop');
+        const isActive = sidebar.classList.contains('active');
+        const shouldOpen = forceState !== null ? forceState : !isActive;
+
+        if (shouldOpen) {
+            app.buildChapterPanel(); 
+            sidebar.classList.add('active');
+            backdrop.classList.add('active');
+        } else {
+            sidebar.classList.remove('active');
+            backdrop.classList.remove('active');
+        }
+    },
+
+    jumpToChapter: (index) => {
+        currentChapterIndex = index;
+        app.loadChapterContent();
+        app.toggleChapterPanel(false);
     },
 
     nextChapter: () => {
         const story = stories.find(s => s.id === currentStoryId);
         if (story && currentChapterIndex < story.chapters.length - 1) {
-            const book = document.getElementById('book3d');
-            book.classList.add('anim-flip-next');
-            
+            currentChapterIndex++;
+            // Animation effect could go here
+            const container = document.getElementById('readerContentWrapper');
+            container.style.opacity = '0';
             setTimeout(() => {
-                currentChapterIndex++;
-                app.renderBookPage();
-                book.classList.remove('anim-flip-next');
-            }, 300); // Mitad de la animación (0.6s)
+                app.loadChapterContent(); // Updates content and nav buttons
+                app.buildChapterPanel();  // Updates TOC active state
+                container.style.opacity = '1';
+            }, 300);
         }
     },
 
     prevChapter: () => {
         if (currentChapterIndex > 0) {
-            const book = document.getElementById('book3d');
-            book.classList.add('anim-flip-prev');
-            
+            currentChapterIndex--;
+            const container = document.getElementById('readerContentWrapper');
+            container.style.opacity = '0';
             setTimeout(() => {
-                currentChapterIndex--;
-                app.renderBookPage();
-                book.classList.remove('anim-flip-prev');
+                app.loadChapterContent(); // Updates content and nav buttons
+                app.buildChapterPanel();  // Updates TOC active state
+                container.style.opacity = '1';
             }, 300);
         }
     },
 
-    toggleBookmark: () => {
-        const ribbon = document.getElementById('bookmarkRibbon');
-        if (ribbon.classList.contains('active')) {
-            localStorage.removeItem(`sanchez_bookmark_${currentStoryId}`);
-            ribbon.classList.remove('active');
-        } else {
-            localStorage.setItem(`sanchez_bookmark_${currentStoryId}`, currentChapterIndex);
-            ribbon.classList.add('active');
-            // Pequeña animación visual
-            ribbon.style.transform = 'scale(1.2)';
-            setTimeout(() => ribbon.style.transform = 'scale(1)', 200);
+    initLegendaryParticles: () => {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speedY: Math.random() * 0.5 + 0.1,
+                opacity: Math.random() * 0.5 + 0.2
+            });
         }
+
+        function animate() {
+            if (!document.body.classList.contains('reading-mode-active')) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#FFC107'; // Gold
+
+            particles.forEach(p => {
+                p.y -= p.speedY;
+                if (p.y < 0) p.y = canvas.height;
+                
+                ctx.globalAlpha = p.opacity;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
     },
 
     toggleReaderIndex: () => {
@@ -543,6 +771,8 @@ const app = {
         // Por simplicidad, usamos un prompt o alert, o podríamos abrir el modal de Lore
         // Para UX pro, abrimos el modal de Lore en la tab de Sinopsis
         app.openLoreManager(currentStoryId);
+        // Shortcut to open TOC
+        app.toggleChapterPanel(true);
     },
 
     showReaderLore: () => {
