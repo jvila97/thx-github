@@ -41,6 +41,9 @@
         <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
             <button class="btn" onclick="app.navigate('list')"><i class="fa-solid fa-list"></i> Ver Lista</button>
             <button class="btn btn-secondary" onclick="app.navigate('add')"><i class="fa-solid fa-plus"></i> Añadir Nueva</button>
+            <button class="btn btn-secondary" onclick="app.exportData()"><i class="fa-solid fa-file-export"></i> Exportar</button>
+            <button class="btn btn-secondary" onclick="app.triggerImport()"><i class="fa-solid fa-file-import"></i> Importar</button>
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="app.handleImport(event)">
         </div>
 
         <!-- VISTA 1: Listado -->
@@ -140,6 +143,22 @@
                         <span class="meta-badge"><i class="fa-solid fa-star"></i> <span id="modalRating"></span></span>
                     </div>
                     <p id="modalSynopsis" class="modal-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Importación -->
+    <div id="importModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-body" style="display: block;"> <!-- Override flex -->
+                <h3><i class="fa-solid fa-file-import"></i> Importar Copia de Seguridad</h3>
+                <p id="importMsg" style="margin: 1rem 0; color: #ccc;"></p>
+                <div id="importPreview" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; font-size: 0.85rem; color: #aaa; margin-bottom: 1rem; max-height: 150px; overflow-y: auto;"></div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="app.closeImportModal()">Cancelar</button>
+                    <button class="btn" style="background: var(--danger);" onclick="app.confirmImport('replace')">Reemplazar Todo</button>
+                    <button class="btn" onclick="app.confirmImport('merge')">Combinar</button>
                 </div>
             </div>
         </div>

@@ -56,6 +56,8 @@ function loadData() {
 const app = {
     currentSeriesId: null,
     quickEditingId: null, // Track which card is in quick edit mode
+    // Variable temporal para almacenar datos antes de confirmar importación
+    pendingImport: null,
 
     // Navegación entre vistas
     navigate: (viewId) => {
@@ -339,6 +341,100 @@ const app = {
             overlay.innerHTML = ''; // Clean up
         }
         app.quickEditingId = null;
+    },
+
+    // --- Sistema de Importación / Exportación ---
+
+    exportData: () => {
+        const dataStr = JSON.stringify(seriesData, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const date = new Date().toISOString().split('T')[0];
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sanchezcabron_anime_backup_${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        app.showToast('Backup exportado correctamente');
+    },
+
+    triggerImport: () => {
+        document.getElementById('importFile').click();
+    },
+
+    handleImport: (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target.result);
+                
+                // Validación básica de estructura
+                if (!Array.isArray(json)) throw new Error("El archivo no contiene una lista válida (debe ser un array).");
+                if (json.length > 0 && (!json[0].hasOwnProperty('title') || !json[0].hasOwnProperty('id'))) {
+                    throw new Error("El archivo no parece ser un backup de series válido (faltan campos críticos).");
+                }
+
+                app.pendingImport = json;
+                
+                // Configurar y mostrar Modal de Previsualización
+                const modal = document.getElementById('importModal');
+                const msg = document.getElementById('importMsg');
+                const preview = document.getElementById('importPreview');
+
+                msg.textContent = `Se han encontrado ${json.length} entradas en el archivo. ¿Cómo deseas proceder?`;
+                
+                // Generar vista previa de los primeros elementos
+                const sample = json.slice(0, 5).map(s => `• ${s.title} (${s.releaseYear || '?'})`).join('<br>');
+                preview.innerHTML = `<strong>Vista previa:</strong><br>${sample}${json.length > 5 ? '<br>...y más' : ''}`;
+
+                modal.style.display = 'flex';
+
+            } catch (err) {
+                console.error(err);
+                alert(`❌ Error de Importación:\n${err.message}`);
+                app.showToast('Error: Archivo inválido');
+            }
+            // Resetear input para permitir importar el mismo archivo si se corrigió
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    },
+
+    closeImportModal: () => {
+        document.getElementById('importModal').style.display = 'none';
+        app.pendingImport = null;
+    },
+
+    confirmImport: (mode) => {
+        if (!app.pendingImport) return;
+
+        if (mode === 'replace') {
+            seriesData = app.pendingImport;
+            saveData();
+            app.showToast(`${seriesData.length} series importadas (Lista reemplazada)`);
+        } else if (mode === 'merge') {
+            let addedCount = 0;
+            app.pendingImport.forEach(newItem => {
+                // Evitar duplicados por ID exacto y Título
+                const existsId = seriesData.some(s => s.id === newItem.id);
+                const existsTitle = seriesData.some(s => s.title.toLowerCase() === newItem.title.toLowerCase());
+                
+                if (!existsId && !existsTitle) {
+                    seriesData.push(newItem);
+                    addedCount++;
+                }
+            });
+            saveData();
+            app.showToast(`${addedCount} entradas nuevas combinadas`);
+        }
+        app.closeImportModal();
     },
 
     render: () => {
