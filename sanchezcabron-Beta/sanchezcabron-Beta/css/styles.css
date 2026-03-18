@@ -2264,4 +2264,5 @@ body.reading-mode-active {
 .game-card { position: relative; }
 .game-card .card-actions { opacity: 0; transition: opacity 0.3s ease; }
 .game-card:hover .card-actions { opacity: 1; }
+.story-card-v2:hover .card-actions { opacity: 1; }
 .bookmark-card:hover .card-actions { opacity: 1; }

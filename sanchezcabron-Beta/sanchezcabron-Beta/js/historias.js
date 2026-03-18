@@ -120,9 +120,11 @@ const app = {
     },
 
     deleteStory: (id) => {
-        if (confirm('¿Borrar esta historia y todos sus capítulos?')) {
+        if (confirm('¿Seguro que quieres eliminar esta historia? Esta acción no se puede deshacer')) {
             stories = stories.filter(s => s.id !== id);
             app.saveStories();
+            app.renderLibrary();
+            app.showToast('Historia eliminada');
         }
     },
 
@@ -361,6 +363,17 @@ const app = {
 
         app.saveStories();
         alert('Archivo de Datos actualizado.');
+    },
+
+    // --- UTILIDADES ---
+
+    showToast: (msg) => {
+        let toast = document.getElementById('toast');
+        if (!toast) return;
+        
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
     },
 
     // --- PORTABILIDAD DE DATOS (IMPORT/EXPORT) ---
@@ -865,6 +878,11 @@ const app = {
         grid.innerHTML = stories.map(story => `
             <div class="story-card-v2" id="story-${story.id}">
                 <div class="quick-edit-overlay"></div>
+                
+                <div class="card-actions">
+                    <button class="action-btn delete-btn" onclick="event.stopPropagation(); app.deleteStory(${story.id})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                </div>
+
                 <div class="story-cover-wrapper">
                     <img src="${story.cover || FALLBACK_COVER}" class="story-cover-img" onerror="this.src='${FALLBACK_COVER}'">
                     <span class="genre-tag">${story.genre}</span>
@@ -887,9 +905,6 @@ const app = {
                     </button>
                     <button class="story-btn btn-export-card" onclick="app.exportStory(${story.id})" title="Exportar JSON">
                         <i class="fa-solid fa-download"></i>
-                    </button>
-                    <button class="story-btn btn-delete-story" onclick="app.deleteStory(${story.id})">
-                        <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
             </div>
