@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Cinzel:wght@400;700&family=Share+Tech+Mono&family=Bebas+Neue&family=Orbitron:wght@400;700&family=MedievalSharp&family=Press+Start+2P&display=swap');
+
+:root {
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #1a1a2e;
+  --color-accent: #66c0f4;
+  --color-accent-hover: #4fa3d1;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #8a9bb0;
+  --color-border: #2a3a5c;
+  --color-success: #4CAF50;
+  --color-danger: #e74c3c;
+  --font-primary: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+body.theme-midnight {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0d0d1a;
+  --color-accent: #9C27B0;
+  --color-accent-hover: #7B1FA2;
+  --color-border: #2a0a3a;
+  --font-primary: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+body.theme-blood {
+  --color-bg-primary: #0d0000;
+  --color-bg-secondary: #1a0505;
+  --color-accent: #e74c3c;
+  --color-accent-hover: #c0392b;
+  --color-border: #3a0a0a;
+  --font-primary: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+body.theme-matrix {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0d1a0d;
+  --color-accent: #00ff41;
+  --color-accent-hover: #00cc33;
+  --color-border: #0a2a0a;
+  --font-primary: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+body.theme-gold {
+  --color-bg-primary: #0a0800;
+  --color-bg-secondary: #1a1500;
+  --color-accent: #FFC107;
+  --color-accent-hover: #FFB300;
+  --color-border: #2a2000;
+  --font-primary: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+body.theme-arctic {
+  --color-bg-primary: #000d1a;
+  --color-bg-secondary: #001a2e;
+  --color-accent: #00e5ff;
+  --color-accent-hover: #00b8d4;
+  --color-border: #002a3a;
+  --font-primary: 'Motiva Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+/* PERSONA 3 - Azul oscuro, luna, melancolía */
+body.theme-persona3 {
+  --color-bg-primary: #0a0f1a;
+  --color-bg-secondary: #0f1a2e;
+  --color-accent: #4fc3f7;
+  --color-accent-hover: #0288d1;
+  --color-text-primary: #e0f7fa;
+  --color-text-secondary: #7986cb;
+  --color-border: #1a2a4a;
+  --color-success: #26c6da;
+  --color-danger: #ef5350;
+  --font-primary: 'Rajdhani', sans-serif;
+  --font-secondary: 'Rajdhani', sans-serif;
+}
+
+/* PERSONA 4 - Amarillo dorado, alegre */
+body.theme-persona4 {
+  --color-bg-primary: #1a1200;
+  --color-bg-secondary: #2a1f00;
+  --color-accent: #FFD600;
+  --color-accent-hover: #FFC200;
+  --color-text-primary: #fff8e1;
+  --color-text-secondary: #bcaaa4;
+  --color-border: #3a2f00;
+  --color-success: #aed581;
+  --color-danger: #ef5350;
+  --font-primary: 'Press Start 2P', monospace;
+  --font-secondary: 'Poppins', sans-serif;
+}
+
+/* PERSONA 5 - Rojo y negro, estilo Phantom Thieves */
+body.theme-persona5 {
+  --color-bg-primary: #0d0000;
+  --color-bg-secondary: #1a0000;
+  --color-accent: #ff1744;
+  --color-accent-hover: #d50000;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ef9a9a;
+  --color-border: #3a0000;
+  --color-success: #ff1744;
+  --color-danger: #b71c1c;
+  --font-primary: 'Bebas Neue', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+/* CYBERPUNK 2077 - Neón amarillo sobre negro */
+body.theme-cyberpunk {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-accent: #f9e900;
+  --color-accent-hover: #ffe000;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #00e5ff;
+  --color-border: #1a1a00;
+  --color-success: #00e676;
+  --color-danger: #ff1744;
+  --font-primary: 'Orbitron', sans-serif;
+  --font-secondary: 'Rajdhani', sans-serif;
+}
+
+/* DARK SOULS - Gris oscuro, fuego tenue, ceniza */
+body.theme-darksouls {
+  --color-bg-primary: #0a0805;
+  --color-bg-secondary: #151008;
+  --color-accent: #c87941;
+  --color-accent-hover: #a0602e;
+  --color-text-primary: #d4c5a9;
+  --color-text-secondary: #8a7a65;
+  --color-border: #2a1f10;
+  --color-success: #c87941;
+  --color-danger: #8b0000;
+  --font-primary: 'Cinzel', serif;
+  --font-secondary: 'Cinzel', serif;
+}
+
+/* XBOX - Verde sobre negro */
+body.theme-xbox {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0a0f0a;
+  --color-accent: #107c10;
+  --color-accent-hover: #0d6b0d;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #52b043;
+  --color-border: #0a1f0a;
+  --color-success: #52b043;
+  --color-danger: #e74c3c;
+  --font-primary: 'Share Tech Mono', monospace;
+  --font-secondary: 'Share Tech Mono', monospace;
+}
+
+/* Apply theme fonts globally */
+body {
+  font-family: var(--font-primary, 'Motiva Sans', 'Arial', 'Helvetica', sans-serif);
+}
+
+h1, h2, h3, h4, .navbar-brand, .module-title, .card-title, .btn {
+  font-family: var(--font-primary, 'Motiva Sans', 'Arial', 'Helvetica', sans-serif);
+}
+
+p, span, input, textarea, select, label {
+  font-family: var(--font-secondary, var(--font-primary, sans-serif));
+}
+
+* {
+  transition: font-family 0.3s ease, color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}

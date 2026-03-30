@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil - SanchezCabron OS</title>
+    <script>
+      const t = localStorage.getItem('sanchezcabron-tema');
+      const c = localStorage.getItem('sanchezcabron-tema-custom');
+      if (t && t !== 'default') document.documentElement.classList.add(t);
+      if (t === 'custom' && c) {
+        const colores = JSON.parse(c);
+        Object.entries(colores).forEach(([v, val]) => document.documentElement.style.setProperty(v, val));
+      }
+    </script>
+    <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -37,7 +47,209 @@
     </header>
     <main class="container section">
         <h2>Gestión de Perfil</h2>
-        <p>Próximamente...</p>
+        
+        <!-- Personalización Section -->
+        <section class="about-section" style="margin-top: 2rem;">
+            <h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-palette"></i> Personalización</h2>
+            <p style="margin-bottom: 2rem;">Selecciona un tema para cambiar la apariencia visual de todo el sistema.</p>
+
+            <div id="themeGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                <!-- Oscuro Clásico -->
+                <div class="theme-swatch" data-tema="default" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #1b2838; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #66c0f4;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: #fff; font-weight: 600; display: block;">Oscuro Clásico</span>
+                </div>
+
+                <!-- Midnight -->
+                <div class="theme-swatch" data-tema="theme-midnight" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #0a0a0f; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #3b82f6;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Midnight</span>
+                </div>
+
+                <!-- Blood -->
+                <div class="theme-swatch" data-tema="theme-blood" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #1a0505; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #ef4444;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Blood</span>
+                </div>
+
+                <!-- Matrix -->
+                <div class="theme-swatch" data-tema="theme-matrix" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #000000; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #00ff41;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Matrix</span>
+                </div>
+
+                <!-- Gold -->
+                <div class="theme-swatch" data-tema="theme-gold" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #121212; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #fbbf24;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Gold</span>
+                </div>
+
+                <!-- Arctic -->
+                <div class="theme-swatch" data-tema="theme-arctic" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #f0f9ff; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #0ea5e9;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Arctic</span>
+                </div>
+
+                <!-- Persona 3 -->
+                <div class="theme-swatch" data-tema="theme-persona3" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #0a0f1a; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #4fc3f7;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Persona 3</span>
+                </div>
+
+                <!-- Persona 4 -->
+                <div class="theme-swatch" data-tema="theme-persona4" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #1a1200; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #FFD600;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Persona 4</span>
+                </div>
+
+                <!-- Persona 5 -->
+                <div class="theme-swatch" data-tema="theme-persona5" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #0d0000; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #ff1744;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Persona 5</span>
+                </div>
+
+                <!-- Cyberpunk -->
+                <div class="theme-swatch" data-tema="theme-cyberpunk" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #000000; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #f9e900;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Cyberpunk</span>
+                </div>
+
+                <!-- Dark Souls -->
+                <div class="theme-swatch" data-tema="theme-darksouls" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #0a0805; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #c87941;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Dark Souls</span>
+                </div>
+
+                <!-- Xbox -->
+                <div class="theme-swatch" data-tema="theme-xbox" style="text-align: center; cursor: pointer;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #000000; border: 2px solid #333; position: relative; overflow: hidden;">
+                        <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #107c10;"></div>
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Xbox</span>
+                </div>
+            </div>
+
+            <!-- Editor de Colores Personalizado - Paso 3 -->
+            <div style="margin-top: 3rem; border-top: 1px solid var(--color-border); padding-top: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.2rem; color: #fff;"><i class="fa-solid fa-sliders"></i> Editor de Colores Personalizado</h3>
+                
+                <div id="customColorGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    
+                    <!-- Fondo Principal -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Fondo Principal</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-bg-primary" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-bg-primary" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-bg-primary);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fondo Tarjetas -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Fondo Tarjetas</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-bg-secondary" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-bg-secondary" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-bg-secondary);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Color de Acento -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Color de Acento</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-accent" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-accent" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-accent);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Acento Hover -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Acento Hover</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-accent-hover" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-accent-hover" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-accent-hover);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Texto Principal -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Texto Principal</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-text-primary" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-text-primary" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-text-primary);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Texto Secundario -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Texto Secundario</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-text-secondary" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-text-secondary" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-text-secondary);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bordes -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Bordes</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-border" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-border" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-border);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Éxito -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Éxito</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-success" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-success" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-success);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Peligro -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 4px;">
+                        <label style="color: var(--color-text-secondary); font-size: 0.85rem;">Peligro</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="color" id="picker-danger" style="width: 24px; height: 24px; border: none; padding: 0; background: none; cursor: pointer;">
+                            <div data-preview="picker-danger" style="width: 16px; height: 16px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1); background: var(--color-danger);"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <button id="btn-aplicar-tema-custom" class="btn" style="margin: 0; background: var(--color-accent); color: var(--color-bg-primary); font-weight: bold;">Aplicar</button>
+                    <button id="btn-guardar-tema-custom" class="btn btn-secondary" style="margin: 0;">Guardar tema personalizado</button>
+                </div>
+            </div>
+
+            <button id="btn-reset-tema" class="btn btn-secondary">
+                <i class="fa-solid fa-rotate-left"></i> Restaurar por defecto
+            </button>
+        </section>
     </main>
     <script src="../js/logros.js"></script>
     <script>
@@ -81,6 +293,7 @@
             });
         });
     </script>
+    <script src="../js/themes.js"></script>
     <script src="../js/script.js"></script>
 </body>
 </html>

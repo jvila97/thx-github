@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juegos - SanchezCabron OS</title>
+    <script>
+      const t = localStorage.getItem('sanchezcabron-tema');
+      const c = localStorage.getItem('sanchezcabron-tema-custom');
+      if (t && t !== 'default') document.documentElement.classList.add(t);
+      if (t === 'custom' && c) {
+        const colores = JSON.parse(c);
+        Object.entries(colores).forEach(([v, val]) => document.documentElement.style.setProperty(v, val));
+      }
+    </script>
+    <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -179,6 +189,7 @@
             });
         });
     </script>
+    <script src="../js/themes.js"></script>
     <script src="../js/juegos.js"></script>
 </body>
 </html>

@@ -107,15 +107,15 @@ function showAchievementToast(achievement) {
     // Sonido
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'); // Sonido corto genérico
     audio.volume = 0.5;
-    audio.play().catch(e => console.log('Audio play failed'));
+    audio.play().catch(e => {});
 
     let toast = document.createElement('div');
     toast.className = 'toast achievement-toast show';
     toast.innerHTML = `
         <div style="display:flex; align-items:center; gap:10px;">
-            <i class="${achievement.icon}" style="color:var(--accent-color); font-size:1.5rem;"></i>
+            <i class="${achievement.icon}" style="color:var(--color-accent); font-size:1.5rem;"></i>
             <div>
-                <div style="font-weight:bold; color:var(--accent-color); font-size:0.8rem;">¡NUEVO LOGRO! 🏆</div>
+                <div style="font-weight:bold; color:var(--color-accent); font-size:0.8rem;">¡NUEVO LOGRO! 🏆</div>
                 <div>${achievement.title}</div>
             </div>
         </div>
@@ -147,7 +147,7 @@ function renderAchievements() {
                 <div class="achievement-info">
                     <h3>${ach.title}</h3>
                     <p>${ach.desc}</p>
-                    ${isUnlocked ? `<small style="color:var(--primary-color); font-weight:bold;">🏆 Conseguido: ${unlockInfo.date}</small>` : '<small><i class="fa-solid fa-lock"></i> Bloqueado</small>'}
+                    ${isUnlocked ? `<small style="color:var(--color-accent); font-weight:bold;">🏆 Conseguido: ${unlockInfo.date}</small>` : '<small><i class="fa-solid fa-lock"></i> Bloqueado</small>'}
                 </div>
             </div>
         `;
@@ -260,5 +260,4 @@ function trackDailyLogin() {
 // Función para el logro Hacker
 window.unlockHacker = function() {
     desbloquearLogro('secret_hacker');
-    console.log("%c ¡ACCESO CONCEDIDO! Eres un verdadero hacker.", "color: #0f0; font-size: 20px;");
 };

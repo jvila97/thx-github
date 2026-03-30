@@ -4,8 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Series - SanchezCabron OS</title>
+    <script>
+      const t = localStorage.getItem('sanchezcabron-tema');
+      const c = localStorage.getItem('sanchezcabron-tema-custom');
+      if (t && t !== 'default') document.documentElement.classList.add(t);
+      if (t === 'custom' && c) {
+        const colores = JSON.parse(c);
+        Object.entries(colores).forEach(([v, val]) => document.documentElement.style.setProperty(v, val));
+      }
+    </script>
+    <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos específicos para la integración Jikan Beta */
+        .badge-beta {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .jikan-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .jikan-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .jikan-item:hover {
+            border-color: var(--color-accent);
+            background: rgba(var(--color-accent-rgb), 0.1);
+            transform: translateY(-3px);
+        }
+        .jikan-poster {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 2px;
+            margin-bottom: 8px;
+        }
+        .jikan-item-title { font-size: 0.85rem; font-weight: 600; display: block; line-height: 1.2; margin-bottom: 4px; }
+        .jikan-item-year { font-size: 0.75rem; color: var(--text-muted); }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -41,6 +93,7 @@
         <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
             <button class="btn" onclick="app.navigate('list')"><i class="fa-solid fa-list"></i> Ver Lista</button>
             <button class="btn btn-secondary" onclick="app.navigate('add')"><i class="fa-solid fa-plus"></i> Añadir Nueva</button>
+            <button class="btn btn-secondary" onclick="app.navigate('jikan')"><i class="fa-solid fa-magnifying-glass"></i> Añadir con Jikan <span class="badge-beta">BETA</span></button>
             <button class="btn btn-secondary" onclick="app.exportData()"><i class="fa-solid fa-file-export"></i> Exportar</button>
             <button class="btn btn-secondary" onclick="app.triggerImport()"><i class="fa-solid fa-file-import"></i> Importar</button>
             <input type="file" id="importFile" style="display:none" accept=".json" onchange="app.handleImport(event)">
@@ -117,6 +170,26 @@
                         <button type="submit" class="btn">Guardar Serie</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- VISTA 3: Buscador Jikan (BETA) -->
+        <div id="view-jikan" class="view-container" style="display: none;">
+            <div class="form-container" style="max-width: 800px;">
+                <h2>Buscador Jikan <span class="badge-beta">BETA</span></h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Busca anime en tiempo real usando la base de datos de MyAnimeList.</p>
+                
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <input type="text" id="jikanSearchInput" class="terminal-input" placeholder="Escribe el nombre del anime (ej: Naruto)..." style="flex: 1;">
+                    <button id="jikanSearchBtn" class="btn" style="margin-top: 0; white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i> BUSCAR EN JIKAN</button>
+                </div>
+
+                <div id="jikan-results" class="jikan-results-grid"></div>
+
+                <div id="jikanLoading" style="display: none; text-align: center; margin: 2rem 0;">
+                    <i class="fa-solid fa-spinner fa-spin fa-2xl" style="color: var(--primary-color);"></i> <span style="margin-left:10px">Buscando...</span>
+                </div>
+                <div id="jikanError" style="display: none; text-align: center; color: var(--danger); margin-top: 2rem; font-weight: bold;"></div>
             </div>
         </div>
     </main>
@@ -209,6 +282,7 @@
             });
         });
     </script>
+    <script src="../js/themes.js"></script>
     <script src="../js/script.js"></script>
 </body>
 </html>

@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRIVATE VAULT</title>
+    <script>
+      const t = localStorage.getItem('sanchezcabron-tema');
+      const c = localStorage.getItem('sanchezcabron-tema-custom');
+      if (t && t !== 'default') document.documentElement.classList.add(t);
+      if (t === 'custom' && c) {
+        const colores = JSON.parse(c);
+        Object.entries(colores).forEach(([v, val]) => document.documentElement.style.setProperty(v, val));
+      }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
@@ -173,6 +182,7 @@
             if(fails >= 3 && typeof desbloquearLogro === 'function') desbloquearLogro('vault_fail_3');
         }
     </script>
+    <script src="../js/themes.js"></script>
     <script src="logros.js"></script>
 </body>
 </html>

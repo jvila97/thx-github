@@ -6,7 +6,7 @@
 const STORAGE_KEY = 'my_series_data_v1';
 
 // Imagen por defecto (SVG en Base64) para cuando falla la carga local
-const FALLBACK_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Crect width='300' height='450' fill='%232a2a2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23555' font-family='sans-serif' font-size='24'%3ENO IMAGE%3C/text%3E%3C/svg%3E";
+const FALLBACK_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Crect width='300' height='450' fill='dimgray'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='darkgray' font-family='sans-serif' font-size='24'%3ENO IMAGE%3C/text%3E%3C/svg%3E";
 
 let seriesData = [];
 
@@ -24,8 +24,141 @@ document.addEventListener('DOMContentLoaded', () => {
         if (seriesIdToOpen) {
             setTimeout(() => app.openDetails(parseInt(seriesIdToOpen)), 300);
         }
+
+        // Listener para búsqueda en Jikan (Debounce de 400ms + Autocomplete)
+        const jikanInput = document.getElementById('jikanSearchInput');
+        let jikanTimeout;
+        if (jikanInput) {
+            // Autocompletado mientras escribes
+            jikanInput.addEventListener('input', (e) => {
+                clearTimeout(jikanTimeout);
+                const query = e.target.value.trim();
+                if (query.length >= 3) {
+                    jikanTimeout = setTimeout(() => buscarAnimeJikan(query), 400);
+                }
+            });
+
+            // Búsqueda al presionar Enter
+            jikanInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(jikanTimeout);
+                    buscarAnimeJikan(jikanInput.value.trim());
+                }
+            });
+
+            // Búsqueda al hacer clic en el botón
+            const jikanBtn = document.getElementById('jikanSearchBtn');
+            if (jikanBtn) {
+                jikanBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    clearTimeout(jikanTimeout);
+                    buscarAnimeJikan(jikanInput.value.trim());
+                });
+            }
+        }
     }
 });
+
+// --- FUNCIONES DE BÚSQUEDA JIKAN (IMPLEMENTACIÓN SOLICITADA) ---
+
+async function buscarAnimeJikan(query) {
+  if (!query) return;
+  const loading = document.getElementById('jikanLoading');
+  const errorDiv = document.getElementById('jikanError');
+  
+  if (loading) loading.style.display = 'block';
+  if (errorDiv) errorDiv.style.display = 'none';
+
+  try {
+    const response = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=8&sfw`);
+    const json = await response.json();
+    const resultados = json.data;
+    
+    if (loading) loading.style.display = 'none';
+
+    if (!resultados || resultados.length === 0) {
+      mostrarMensaje('No se encontraron resultados para ese anime');
+      return;
+    }
+    renderizarResultados(resultados);
+  } catch (error) {
+    if (loading) loading.style.display = 'none';
+    mostrarMensaje('No se puede conectar con Jikan API en este momento');
+    console.error(error);
+  }
+}
+
+function renderizarResultados(resultados) {
+  const contenedor = document.getElementById('jikan-results');
+  if (!contenedor) return;
+  contenedor.innerHTML = '';
+  resultados.forEach(anime => {
+    // Fallback de título y truncado a 40 caracteres
+    const displayTitle = anime.title || anime.title_english || 'Sin título';
+    const truncatedTitle = displayTitle.length > 40 ? displayTitle.substring(0, 37) + '...' : displayTitle;
+
+    const card = document.createElement('div');
+    card.className = 'jikan-item';
+    // Estilo mejorado para evitar solapamientos
+    card.innerHTML = `
+      <img src="${anime.images.jpg.image_url}" alt="${displayTitle}" class="jikan-poster">
+      <div style="display: flex; flex-direction: column; overflow: hidden; text-align: left; width: 100%;">
+        <strong class="jikan-item-title" title="${displayTitle}">${truncatedTitle}</strong>
+        <span class="jikan-item-year">${anime.aired?.prop?.from?.year ?? 'N/A'} · ${anime.episodes ?? '?'} eps</span>
+      </div>
+    `;
+    card.addEventListener('click', () => seleccionarAnime(anime));
+    contenedor.appendChild(card);
+  });
+}
+
+function seleccionarAnime(anime) {
+  // Limpiar y cerrar panel de resultados
+  const contenedor = document.getElementById('jikan-results');
+  if (contenedor) {
+    contenedor.innerHTML = '';
+    contenedor.classList.remove('show');
+  }
+
+  // Auto-llenado del formulario con IDs reales de series.html
+  document.getElementById('titleInput').value = anime.title || anime.title_english || '';
+  document.getElementById('fileNameInput').value = anime.images.jpg.large_image_url || anime.images.jpg.image_url || '';
+  document.getElementById('capsInput').value = anime.episodes || '';
+  
+  // Limpieza de duración (extraer solo el número)
+  const durationStr = anime.duration ? anime.duration.match(/\d+/) : null;
+  document.getElementById('durationInput').value = durationStr ? durationStr[0] : 24;
+  
+  document.getElementById('yearInput').value = anime.aired?.prop?.from?.year || '';
+  
+  // La puntuación de MAL es 0-10, igual que el input del sitio
+  document.getElementById('ratingInput').value = anime.score ? Math.round(anime.score) : '';
+  document.getElementById('ratingInput').value = anime.score ? Math.round(anime.score) : '';
+  document.getElementById('ratingInput').value = anime.score || '';
+  document.getElementById('statusInput').value = 'pendiente';
+  document.getElementById('synopsisInput').value = anime.synopsis || '';
+
+  // Cambiar a la vista del formulario
+  app.navigate('add');
+
+  // Scroll suave hacia el formulario para feedback visual
+  const formView = document.getElementById('view-add');
+  if (formView) {
+      formView.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  app.showToast('Información de anime cargada.');
+}
+
+function mostrarMensaje(msg) {
+    const errorMsg = document.getElementById('jikanError');
+    if (errorMsg) {
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+    }
+    app.showToast(msg);
+}
 
 // --- Persistencia ---
 function saveData() {
@@ -56,6 +189,7 @@ function loadData() {
 const app = {
     currentSeriesId: null,
     quickEditingId: null, // Track which card is in quick edit mode
+    jikanPreviewData: null, // Almacena temporalmente los metadatos del anime seleccionado
     // Variable temporal para almacenar datos antes de confirmar importación
     pendingImport: null,
 
@@ -87,6 +221,7 @@ const app = {
         const releaseYear = document.getElementById('yearInput').value;
         const rating = document.getElementById('ratingInput').value;
         const status = document.getElementById('statusInput').value;
+        const isAiring = app.jikanPreviewData ? app.jikanPreviewData.airing : false;
 
         if (!title || !caps || !duration) {
             return alert('Por favor, completa todos los campos.');
@@ -96,7 +231,13 @@ const app = {
         // 1. Si hay nombre manual, usa ese (asumiendo que está en img/portadas/)
         // 2. Si no, genera nombre automático basado en el título
         const imageName = manualFile ? manualFile : app.formatFileName(title);
-        const coverPath = `../assets/img/portadas/${imageName}`;
+        
+        let coverPath;
+        if (imageName.startsWith('http') || imageName.startsWith('data:')) {
+            coverPath = imageName;
+        } else {
+            coverPath = `../assets/img/portadas/${imageName}`;
+        }
 
         // Calcular horas totales
         const totalHours = ((caps * duration) / 60).toFixed(1);
@@ -108,11 +249,16 @@ const app = {
             synopsis: synopsis || "Sin descripción disponible.",
             releaseYear: releaseYear || "????",
             rating: rating || "-",
-            status: status // Guardamos el estado seleccionado
+            status: status, // Guardamos el estado seleccionado
+            isAiring: isAiring
         };
 
         seriesData.push(newSeries);
         saveData();
+
+        // Limpieza de estados de búsqueda
+        app.jikanPreviewData = null;
+        if (document.getElementById('jikanPreviewContainer')) document.getElementById('jikanPreviewContainer').innerHTML = '';
 
         // --- LOGROS ---
         if (typeof desbloquearLogro === 'function') {
@@ -437,6 +583,111 @@ const app = {
         app.closeImportModal();
     },
 
+    renderJikanResultsList: (resultados) => {
+        const resultsContainer = document.getElementById('jikanResults');
+        const errorMsg = document.getElementById('jikanError');
+        if (!resultsContainer) return;
+
+        resultsContainer.innerHTML = resultados.map(item => `
+            <div class="jikan-item" onclick="app.selectJikanItem(${item.mal_id})">
+                <img src="${item.images.jpg.image_url}" class="jikan-poster" onerror="this.src='${FALLBACK_IMG}'">
+                <div style="display:flex; flex-direction:column; overflow:hidden;">
+                    <span class="jikan-item-title">${item.title}</span>
+                    <span class="jikan-item-year">${item.year || 'N/A'} • ${item.episodes || '?'} caps</span>
+                </div>
+            </div>
+        `).join('');
+        resultsContainer.classList.add('show');
+        if (errorMsg) errorMsg.style.display = 'none';
+    },
+
+    selectJikanItem: async (malId) => {
+        const resultsContainer = document.getElementById('jikanResults');
+        resultsContainer.classList.remove('show');
+        
+        const loading = document.getElementById('jikanLoading');
+        if (loading) loading.style.display = 'block';
+
+        try {
+            const response = await fetch(`https://api.jikan.moe/v4/anime/${malId}/full`);
+            
+            if (response.status === 429) {
+                app.showToast('Demasiadas búsquedas, espera un momento...');
+                setTimeout(() => app.selectJikanItem(malId), 1000);
+                return;
+            }
+
+            const result = await response.json();
+            const data = result.data;
+            if (loading) loading.style.display = 'none';
+
+            if (data) {
+                app.jikanPreviewData = data;
+
+                // Mapeo automático de campos
+                document.getElementById('titleInput').value = data.title;
+                document.getElementById('yearInput').value = data.year || (data.aired.from ? data.aired.from.split('-')[0] : '');
+                document.getElementById('ratingInput').value = data.score || '';
+                
+                // Normalizar duración (ej: "24 min per ep" -> 24)
+                const durationMatch = data.duration.match(/\d+/);
+                document.getElementById('durationInput').value = durationMatch ? durationMatch[0] : 24;
+                
+                document.getElementById('capsInput').value = data.episodes || 0;
+                document.getElementById('fileNameInput').value = data.images.jpg.large_image_url;
+                document.getElementById('statusInput').value = 'pendiente';
+
+                // Construcción de sinopsis técnica enriquecida
+                const genres = data.genres.map(g => g.name).join(', ');
+                const studios = data.studios.map(s => s.name).join(', ');
+                const season = data.season ? `${data.season.toUpperCase()} ` : '';
+                
+                let techInfo = `[${data.title_japanese || ''}]\n`;
+                techInfo += `Estudio: ${studios || 'Desconocido'} | Géneros: ${genres || 'N/A'}\n`;
+                techInfo += `Temporada: ${season}${data.year || ''}\n\n`;
+                techInfo += data.synopsis || "Sin descripción disponible.";
+                
+                document.getElementById('synopsisInput').value = techInfo;
+
+                // Renderizar Tarjeta de Previsualización
+                app.renderJikanPreview(data);
+                app.navigate('add');
+                app.showToast('Datos de Jikan importados. Revisa la previsualización.');
+            }
+        } catch (err) {
+            if (loading) loading.style.display = 'none';
+            app.showToast('Error de conexión al obtener detalles.');
+        }
+    },
+
+    renderJikanPreview: (data) => {
+        const form = document.getElementById('addSeriesForm');
+        let container = document.getElementById('jikanPreviewContainer');
+        
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'jikanPreviewContainer';
+            container.style.cssText = 'background: rgba(0,0,0,0.2); padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px dashed var(--color-accent);';
+            form.prepend(container);
+        }
+
+        const airingBadge = data.airing ? `<span class="badge-airing">En emisión</span>` : '';
+
+        container.innerHTML = `
+            <div style="display: flex; gap: 15px; align-items: start;">
+                <img src="${data.images.jpg.image_url}" style="width: 100px; height: 140px; object-fit: cover; border-radius: 4px;">
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 5px 0; color: #fff;">${data.title} ${airingBadge}</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">MAL Score: <strong>${data.score || 'N/A'}</strong> | ${data.episodes || '?'} eps</p>
+                    <p style="font-size: 0.75rem; color: #ccc; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${data.synopsis || ''}</p>
+                </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--primary-color); text-align: center;">
+                <i class="fa-solid fa-circle-check"></i> Revisa los campos y pulsa "Guardar Serie" para añadir a tu lista.
+            </div>
+        `;
+    },
+
     render: () => {
         const grid = document.getElementById('seriesGrid');
         const counter = document.getElementById('total-counter');
@@ -469,6 +720,8 @@ const app = {
             const card = document.createElement('div');
             card.className = 'series-card';
             
+            const airingBadge = serie.isAiring ? `<span class="badge-airing">En emisión</span>` : '';
+            
             card.innerHTML = `
                 <div class="quick-edit-overlay"></div>
                 <div class="card-actions">
@@ -483,7 +736,7 @@ const app = {
                      onclick="app.openDetails(${serie.id})" style="cursor:pointer;"
                 >
                 <div class="card-content" onclick="app.openDetails(${serie.id})" style="cursor:pointer;">
-                    <div class="card-title">${serie.title}</div>
+                    <div class="card-title">${serie.title} ${airingBadge}</div>
                     <div class="card-meta">
                         <span><i class="fa-solid fa-layer-group"></i> ${serie.caps} caps</span>
                         <span><i class="fa-solid fa-stopwatch"></i> ${serie.duration} min</span>

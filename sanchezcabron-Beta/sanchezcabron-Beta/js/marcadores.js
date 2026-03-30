@@ -11,7 +11,71 @@ let quickEditingBookmarkId = null;
 const dom = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔗 Sistema de Marcadores Iniciado');
+<!-- Personalización Section - Step 1 -->
+<section class="about-section" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-palette"></i> Personalización</h2>
+    <p style="margin-bottom: 2rem;">Selecciona un tema para cambiar la apariencia visual de todo el sistema.</p>
+
+    <!-- Theme Grid -->
+    <div id="themeGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Oscuro Clásico (Active by Default) -->
+        <div class="theme-swatch" style="text-align: center; cursor: pointer;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #1b2838; border: 3px solid #66c0f4; box-shadow: 0 0 15px rgba(102, 192, 244, 0.6); position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #66c0f4;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #fff; font-weight: 600; display: block;">Oscuro Clásico</span>
+        </div>
+
+        <!-- Midnight -->
+        <div class="theme-swatch" style="text-align: center; cursor: pointer;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #0a0a0f; border: 2px solid #333; position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #3b82f6;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Midnight</span>
+        </div>
+
+        <!-- Blood -->
+        <div class="theme-swatch" style="text-align: center; cursor: pointer;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #1a0505; border: 2px solid #333; position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #ef4444;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Blood</span>
+        </div>
+
+        <!-- Matrix -->
+        <div class="theme-swatch" style="text-align: center; cursor: pointer;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #000000; border: 2px solid #333; position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #00ff41;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Matrix</span>
+        </div>
+
+        <!-- Gold -->
+        <div class="theme-swatch" style="text-align: center; cursor: pointer;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #121212; border: 2px solid #333; position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #fbbf24;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Gold</span>
+        </div>
+
+        <!-- Arctic -->
+        <div class="theme-swatch" style="text-align: center; cursor: pointer;">
+            <div style="width: 70px; height: 70px; margin: 0 auto 12px; border-radius: 50%; background: #f0f9ff; border: 2px solid #333; position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0; width: 100%; height: 40%; background: #0ea5e9;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block;">Arctic</span>
+        </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div style="border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+        <button id="resetThemeBtn" class="btn btn-secondary" style="margin: 0;">
+            <i class="fa-solid fa-rotate-left"></i> Restaurar por defecto
+        </button>
+    </div>
+</section>
     
     // DOM Elements
     dom.grid = document.getElementById('bookmarksGrid');

@@ -20,7 +20,9 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
     <!-- Main stylesheet, loaded synchronously to prevent Flash of Unstyled Content (FOUC) -->
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="js/themes.js" defer></script>
 
     <!-- Optimization: Load fonts and icons asynchronously so they don't block rendering.
          The 'media="print"' trick loads them with low priority. 'onload' applies them once loaded. -->
@@ -37,17 +39,17 @@
     <style>
         #loader-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #171a21; /* Matches site's --bg-color */
+            background-color: var(--color-bg-primary); 
             z-index: 9999; display: flex; justify-content: center; align-items: center;
             transition: opacity 0.6s ease, visibility 0.6s;
         }
         .loader-spinner {
             width: 60px; height: 60px;
-            border: 3px solid rgba(102, 192, 244, 0.1);
-            border-top-color: #66c0f4; /* Steam Blue */
+            border: 3px solid rgba(var(--color-accent-rgb), 0.1);
+            border-top-color: var(--color-accent); 
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            box-shadow: 0 0 20px rgba(102, 192, 244, 0.2);
+            box-shadow: 0 0 20px rgba(var(--color-accent-rgb), 0.2);
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         #loader-wrapper.fade-out { opacity: 0; }
@@ -253,6 +255,7 @@
     </footer>
 
     <!-- Optimization: 'defer' attribute downloads scripts in parallel and executes them after the page has parsed. -->
+    <script src="js/themes.js"></script>
     <script src="js/logros.js" defer></script>
     <script src="js/script.js" defer></script>
 
