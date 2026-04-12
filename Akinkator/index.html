@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akinkator</title>
+    <!-- External Resources: Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Project Resources -->
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/akinkator.js" defer></script>
+</head>
+<body>
+    <div id="game-wrapper">
+        <!-- Screen 1: Start Screen -->
+        <div id="screen-start" class="screen-container">
+            <h1 class="dramatic-title">AKINKATOR</h1>
+            <p class="subtitle">Piensa en cualquier personaje... y lo adivinaré</p>
+            <div id="orb" class="pulse-orb"></div>
+            <button id="btn-start" class="main-button">Comenzar</button>
+        </div>
+
+        <!-- Screen 2: Question Screen (Hidden by default) -->
+        <div id="screen-question" class="screen-container hidden">
+            <div class="orb-mini"></div>
+            <div id="counter" class="question-counter">Pregunta 1 de 20</div>
+            
+            <div id="progress-bar" class="bar-container">
+                <div id="progress-fill" class="bar-fill"></div>
+            </div>
+
+            <div id="question-text" class="question-display">
+                <!-- Question content injected here via JS -->
+            </div>
+
+            <div class="answer-grid">
+                <button id="btn-si" class="answer-button">Sí</button>
+                <button id="btn-no" class="answer-button">No</button>
+                <button id="btn-nose" class="answer-button">No sé</button>
+                <button id="btn-probablemente" class="answer-button">Probablemente</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Result Screen (Hidden by default) -->
+        <div id="screen-result" class="screen-container hidden">
+            <h2 id="result-name" class="reveal-title">Nombre del Personaje</h2>
+            <p id="result-desc" class="character-description">Descripción del personaje adivinado.</p>
+            
+            <div class="feedback-actions">
+                <button id="btn-correct" class="feedback-button success">¡Acertaste!</button>
+                <button id="btn-wrong" class="feedback-button failure">Fallaste</button>
+            </div>
+            
+            <button id="btn-restart" class="restart-link">Jugar de nuevo</button>
+        </div>
+    </div>
+</body>
+</html>
